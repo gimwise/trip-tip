@@ -145,6 +145,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'users.CustomUser'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'nickname'
 
 # Default primary key field type
 
