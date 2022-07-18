@@ -58,8 +58,13 @@ INSTALLED_APPS = [
     # cors
     'corsheaders',
     # token
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    # app
+    'api.apps.ApiConfig',
+    'users.apps.UsersConfig',
+    'groups.apps.GroupsConfig',
 ]
 
 MIDDLEWARE = [
@@ -95,7 +100,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -106,7 +110,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,7 +128,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -139,12 +141,12 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 # Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -158,9 +160,10 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8000',
-    'localhost:3000',
+    'http://localhost:3000',
 )
+
+# Simple JWT
 
 REST_USE_JWT = True
 
