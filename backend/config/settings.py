@@ -10,6 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
+import json
+from django.core.exceptions import ImproperlyConfigured
+
 from pathlib import Path
 from datetime import timedelta
 
@@ -21,7 +25,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4l0vq-oc&ia+khdg_u!+$!mtb9k+@j)hv0k-==qfc_e%q+e1*-'
+SECRET_FILE = os.path.join(BASE_DIR, 'mysettings.json')
+with open(SECRET_FILE) as f:
+    SECRETS = json.loads(f.read())
+
+def get_secret(setting, secrets=SECRETS):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = f"Set the {setting} enviroment variable"
+        raise ImproperlyConfigured(error_msg)
+
+SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True # 배포 전에 False로 고칠 것.
@@ -38,7 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # drf
     'rest_framework',
+    # cors
+    'corsheaders',
     # token
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -47,6 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -139,7 +158,8 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
+    'http://localhost:8000',
+    'localhost:3000',
 )
 
 REST_USE_JWT = True
