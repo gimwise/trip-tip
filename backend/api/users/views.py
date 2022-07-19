@@ -63,6 +63,15 @@ class SignOutUserView(APIView):
         user = RefreshTokenSerializer(data=request.data)
         user.is_valid(raise_exception=True)
         user.save()
+
+        reset = ''
+        res = Response({
+                "message": "logout success" 
+            }, status=status.HTTP_204_NO_CONTENT
+        )
+        res.set_cookie('access', reset)
+        res.set_cookie('refresh', reset)
+
         return Response(
                 {
                    "message": "logout success" 
