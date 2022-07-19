@@ -6,6 +6,6 @@ from .models import Group, Member
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('group_id', 'group_name', 'code', 'leader')
 
-@admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
-    list_display = ('group_id',)
+# @admin.register(Member)
+# class MemberAdmin(admin.ModelAdmin):
+#     list_display = ('group_FK',)

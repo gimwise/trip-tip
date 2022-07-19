@@ -131,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -185,8 +185,8 @@ SIMPLE_JWT = {
 
     'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
+    'USER_ID_FIELD': 'user_id',
+    'USER_ID_CLAIM': 'nickname',
     'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
 
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),

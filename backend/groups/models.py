@@ -15,11 +15,12 @@ class Group(models.Model): # User : Group = 1 : N
         default=uuid.uuid4,
         verbose_name="code",
     )
-    leader = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user', on_delete=models.CASCADE, null=False, db_column='leader')
+    leader = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='leader_user', on_delete=models.CASCADE, null=False, db_column='leader')
+    member = models.ManyToManyField(settings.AUTH_USER_MODEL, through="Member", related_name="member_in_group")
 
     def __str__(self):
         return self.group_name
 
 class Member(models.Model): # Group : Member = 1 : N && User : Member = N : N
-    # user_id = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
-    group_id = models.ForeignKey('Group', related_name='user', on_delete=models.CASCADE, db_column='group_id',)
+    user_FK = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="group_member" , on_delete=models.CASCADE, db_column='user_FK')
+    group_FK = models.ForeignKey(Group, related_name="group_in", on_delete=models.CASCADE, db_column='group_FK')

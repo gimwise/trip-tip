@@ -29,6 +29,11 @@ class CustomAccountManger(BaseUserManager):
         user.save()
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    BANK_CHOICE = ( # 나중에 추가
+        ('NH', "농협"),
+        ('KB', "국민"),
+    )
+
     user_id = models.BigAutoField(
         primary_key=True,
         unique=True,
@@ -37,11 +42,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     username = models.CharField(max_length=45, )
     nickname = models.CharField(max_length=45, unique=True)
+    create_dt = models.DateTimeField(default=timezone.now, blank=True, null=True)
     phone = models.CharField(max_length=45, blank=True, null=True)
-    bank = models.CharField(max_length=45, blank=True, null=True)
+    bank = models.CharField(max_length=45, choices=BANK_CHOICE ,blank=True, null=True)
     bank_account = models.CharField(max_length=45, blank=True, null=True)
     profile_img = models.ImageField(blank=True, null=True)
-    start_date = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
