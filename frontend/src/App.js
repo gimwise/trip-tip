@@ -1,24 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from 'react-router-dom';
+import Header from 'components/Header/Header';
+import LoginPage from 'pages/Auth/LoginPage';
+import RegisterPage from 'pages/Auth/RegisterPage';
+import StartPage from 'pages/Auth/StartPage';
+import Main from 'pages/Main/Main';
+
 
 function App() {
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(()=>{
+    if(localStorage.getItem('token') === null){
+      console.log("isLogin :: ", isLogin);
+    }else{
+      setIsLogin(true);
+      console.log("isLogin :: ", isLogin);
+    }
+  }, [isLogin]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+
+      <Header/>
+
+      <Routes>
+        <Route path="/" element={<StartPage/>}/>
+        <Route path="main" element={<Main/>} />
+        <Route path="signin" element={<LoginPage/>} />
+        <Route path="signup" element={<RegisterPage/>} />
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 
