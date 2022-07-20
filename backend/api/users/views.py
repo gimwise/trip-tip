@@ -65,7 +65,8 @@ class SignOutUserView(APIView):
         user.save()
 
         reset = ''
-        res = Response({
+        res = Response(
+            {
                 "message": "logout success" 
             }, status=status.HTTP_204_NO_CONTENT
         )
