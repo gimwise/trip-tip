@@ -74,8 +74,6 @@ class SignOutUserView(APIView):
         res.set_cookie('refresh', reset)
 
         return Response(
-            {
-               "message": "logout success" 
-            }, status=status.HTTP_204_NO_CONTENT
-        )
-
+                {
+                   "message": "logout success" 
+                }, status=status.HTTP_204_NO_CONTENT)
