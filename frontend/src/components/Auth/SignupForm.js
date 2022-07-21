@@ -55,7 +55,7 @@ const SignupForm = () => {
             }
         ).then((res)=>{
             console.log(res);
-            window.location.replace("http://localhost:3000/main");
+            window.location.replace("http://localhost:3000/signin");
         }).catch((error)=> {
             console.log(error);
             alert("정확히 정보를 입력하세요.");
@@ -66,7 +66,6 @@ const SignupForm = () => {
         <Container className='signup-content'>
             <LeftContent>
                 {loading === false && <h1>회원가입</h1>}
-                {errors === true && <h2>정보를 정확히 입력해주세요!</h2>}
                 <form onSubmit={onSubmit}>
                     {/* 이름 */}
                     <input
@@ -164,7 +163,7 @@ const LeftContent = styled.div`
     justify-content : center;
     align-items: center;
     margin-right : 100px;
-    
+
     h1{
         font-size : 22px;
     }

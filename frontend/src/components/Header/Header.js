@@ -1,9 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import logo from 'assets/image/logo-blue.png';
 import { NavLink } from 'react-router-dom';
+import { getCookie } from 'utils/Cookie';
 
 const Header = () => {
+    const [username, setUsername] = useState("");
+
+    useEffect(()=>{
+        setUsername(getCookie("nickname")); // 지금은 nickname
+    }, [username]);
 
     return (
         <Container>
@@ -17,6 +23,7 @@ const Header = () => {
             <Element>
                 <>      
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
+                    {username}
                 </> 
             </Element>
 

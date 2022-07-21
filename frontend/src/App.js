@@ -16,19 +16,11 @@ import CalculatePage from 'pages/Group/CalculatePage';
 import GroupPage from 'pages/Group/GroupPage';
 import InputCodePage from 'pages/Group/InputCodePage.js';
 import NotFound from 'pages/NotFound';
+import AxiosAPI from 'apis/AxiosAPI';
 
 
 function App() {
-  const [isLogin, setIsLogin] = useState(false);
 
-  useEffect(()=>{
-    if(localStorage.getItem('token') === null){
-      console.log("isLogin :: ", isLogin);
-    }else{
-      setIsLogin(true);
-      console.log("isLogin :: ", isLogin);
-    }
-  }, [isLogin]);
 
   return (
     <BrowserRouter>
