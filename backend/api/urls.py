@@ -4,6 +4,6 @@ app_name = 'api'
 
 urlpatterns = [
     # path('', name=''),
-    # path('group/', include('groups.urls', namespace='groups')),
+    path('groups/', include('api.groups.urls', namespace='groups')),
     path('users/', include('api.users.urls', namespace='users')),
 ]

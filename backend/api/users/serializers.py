@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 CustomUser = get_user_model()
@@ -20,8 +21,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         nickname = attrs['nickname']
+        password = attrs['password']
         if CustomUser.objects.filter(nickname=nickname).exists():
             raise serializers.ValidationError("이미 존재하는 닉네임입니다.")
+        validate_password(password)
+
         return attrs
 
 class RefreshTokenSerializer(serializers.Serializer):

@@ -3,19 +3,21 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-import random
-import string
+import uuid
+import base64
+import codecs
 
-def get_group_code():
-    n = 30
-    res = ""
-    for i in range(n):
-        res += str(random.choice(string.ascii_uppercase))
-    return res
+def generate_random_slug_code(length=8):
+    """
+    generates random code of given length
+    """
+    return base64.urlsafe_b64encode(
+        codecs.encode(uuid.uuid4().bytes, "base64").rstrip()
+    ).decode()[:length]
 
 CustomUser = settings.AUTH_USER_MODEL
 
-class Group(models.Model): # User : Group = 1 : N
+class Group(models.Model):
     group_id = models.BigAutoField(
         primary_key=True, 
         unique=True, 
@@ -26,7 +28,7 @@ class Group(models.Model): # User : Group = 1 : N
         max_length=45,
         unique=True,
         editable=False,
-        default=get_group_code(),
+        default=generate_random_slug_code(),
         verbose_name="code",
     )
     leader = models.ForeignKey(CustomUser, related_name='leader_user', on_delete=models.CASCADE, null=True, db_column='leader')
@@ -36,7 +38,7 @@ class Group(models.Model): # User : Group = 1 : N
 
 class Member(models.Model):
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, db_column='user_id',)
-    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id',)
+    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group_info', db_column='group_id',)
 
 class Meeting(models.Model):
     meeting_id = models.BigAutoField(

@@ -1,35 +1,55 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
-from groups.serializers import ShowGroupSerializer, DetailGroupSerializer, CreateGroupSerializer, JoinGroupSerializer
+from rest_framework.response import Response
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
+
+from config.permissions import GroupLeaderPermission
+from users.models import CustomUser
 from groups.models import Group, Member
-# from rest_framework.response import Response
-# from blog.models import Post, Comment
+from .serializers import GroupSerializer
 
-class ShowGroupView(APIView):
+def get_user_from_access_token(access_token_str):
+    access_token_obj = AccessToken(access_token_str)
+    user_id=access_token_obj['user_id']
+    user=CustomUser.objects.get(user_id=user_id)
+    content =  {
+        'user_id' : user.user_id, 
+        'nickname': user.nickname, 
+        'username': user.username
+    }
+    return Response(content)
+
+class GroupView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+
+    def get(self, request):
+        user = request.user
+        member = Member.objects.filter(user_id=user)
+        query = member.values('group_id__group_id') # Member Fk로 Group정보 가져옴
+        data = []
+        for i in range(len(query)):
+            group = Group.objects.filter(group_id=query[i]['group_id__group_id'])
+            data.append({
+                'leader': group[0].leader,
+                'group_id': group[0].group_id,
+                'group_name': group[0].group_name,
+                'code': group[0].code,
+            })
+        serializer = GroupSerializer(data, many=True)
+        return Response(serializer.data)
+
+class DetailGroupView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
     queryset = Group.objects.all()
-    serializer_class = ShowGroupSerializer
 
-class DetailGroupView(APIView):
-    queryset = Group.objects.all()
-    serializer_class = DetailGroupSerializer
+# class CreateGroupView(APIView):
+#     queryset = Group.objects.all()
+#     serializer_class = CreateGroupSerializer
 
-class CreateGroupView(APIView):
-    queryset = Group.objects.all()
-    serializer_class = CreateGroupSerializer
 
-class JoinGroupView(APIView):
     
-
-# def post(self, request):
-#         input = CustomUserSerializer(data=request.data)
-#         if reg_serializer.is_valid():
-#             new_user = reg_serializer.save() # Query Type
-            
-#             return Response(
-#                 {
-#                     "user": CustomUserSerializer(new_user).data, # JSON Type
-#                     "message": "회원가입이 완료되었습니다!"
-#                 },
-#                 status = status.HTTP_201_CREATED,
-#             )
-#         return Response(reg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

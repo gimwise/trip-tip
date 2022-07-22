@@ -26,7 +26,7 @@ class CustomUserView(APIView):
                 status = status.HTTP_201_CREATED,
             )
         return Response(reg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 class SignInUserView(APIView):
     permission_classes = [ AllowAny ]
 
