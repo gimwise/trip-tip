@@ -1,5 +1,6 @@
+from dataclasses import field
 from rest_framework import serializers
-from groups.models import Group
+from groups.models import Group, Member
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,11 +8,11 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class CreateGroupSerializer(serializers.Serializer):
-#     user = CustomUser.objects.get(name="username")
-#     group = Group.objects.get(name='group_name')
-#     user.groups.add(group)
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = '__all__'
 
-# class JoinGroupSerializer(serializers.Serializer):
-#     pass
+
+
 
