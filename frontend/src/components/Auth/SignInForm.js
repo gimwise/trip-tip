@@ -52,7 +52,7 @@ const SignInForm = () => {
                     required
                 />
                 <br/>
-                <input type='submit' value="로그인"/>
+                <input type='submit' value="로그인" />
             </form>
         </Container>
     );
@@ -64,8 +64,33 @@ const Container = styled.div`
     width : 100%;
     height : 90%;
     display : flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-`;
+
+    h1{
+        font-size : 22px;
+    }
+    form{
+        display:flex;
+        flex-direction: column;
+        justify-content : center;
+        align-items : center;
+    };
+    input{
+        border : 1px solid #C7C7C7;
+        border-radius : 25px;
+        width : 350px;
+        padding : 15px;
+        margin : 10px 0;
+    }
+    input[type="submit"]{
+        cursor : pointer;
+        background-color : #0065FF;
+        color : white;
+        width : 200px;
+        border : 0px;
+        border-radius : 10px;
+    }
+`
 
