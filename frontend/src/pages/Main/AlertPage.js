@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Alert = () => {
+const AlertPage = () => {
     return (
         <div>
             알림 페이지 (일단 페이지로)
@@ -8,4 +8,4 @@ const Alert = () => {
     );
 };
 
-export default Alert;
+export default AlertPage;

@@ -3,17 +3,23 @@ import styled from 'styled-components';
 import logo from 'assets/image/logo-blue.png';
 import { NavLink } from 'react-router-dom';
 import { getCookie } from 'utils/Cookie';
+import noAlertImg from 'assets/image/bell-01.png';
+import alertImg from 'assets/image/bell-02.png';
+import user from 'assets/image/user.png';
 
-const Header = () => {
+
+const Header = ({isLogin}) => {
+
     const [username, setUsername] = useState("");
 
     useEffect(()=>{
         setUsername(getCookie("nickname")); // 지금은 nickname
     }, [username]);
 
+
     return (
         <Container>
-            <Logo href='/'>
+            <Logo href={isLogin === true ? `/main` : `/`}>
                 <LogoImg
                     src={logo}
                     alt='logo'
@@ -23,7 +29,20 @@ const Header = () => {
             <Element>
                 <>      
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
-                    {username}
+                    {isLogin === true ?
+                        <div>
+                            <LinkImg to='/alert'>
+                                <img src={noAlertImg}/>
+                            </LinkImg>
+                            <LinkImg to='/mypage'>
+                                <img src={user}/>
+                            </LinkImg>
+                        </div>
+                        :
+                        <div>
+                            로그인 안함
+                        </div>
+                    }
                 </> 
             </Element>
 
@@ -36,6 +55,7 @@ export default Header;
 const Container = styled.div`
     width : 100%;
     height : 10%;
+    padding : 20px 0;
     display : flex;
     flex-direction: row;
     justify-content: space-between;
@@ -47,11 +67,11 @@ const Element = styled.div`
     display : flex;
     padding-right : 20px;
     justify-content: space-between;
+    align-items : center;
 `;
 
 const Logo = styled.a`
     text-decoration : none;
-    margin-top : 40px;
     margin-left : 70px;
     display : flex;
     align-items : center;
@@ -69,24 +89,15 @@ const LogoTitle = styled.p`
     color : #001E6C;
 `;
 
-const SignupButton = styled(NavLink)`
+const LinkImg = styled(NavLink)`
     text-decoration : none;
-    color : black;
-    border : none;
-    cursor: pointer;
-    padding : 10px 15px;
     border-radius: 0.5rem;
     background-color : white;
     margin : 0 15px;
+
+    img{
+        cursor : pointer;
+        width : 25px;
+    }
 `;
 
-const SigninButton = styled(NavLink)`
-    text-decoration : none;
-    border : none;
-    cursor: pointer;
-    padding : 10px 15px;
-    border-radius: 0.5rem;
-    background-color: #035397;
-    color : white;
-    margin : 0 15px;
-`;

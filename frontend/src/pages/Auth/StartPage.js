@@ -3,7 +3,12 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import startImg from 'assets/image/main-page-image.png';
 
-const StartPage = () => {
+const StartPage = ({isLogin}) => {
+
+    if(isLogin === true){
+        window.location.replace("http://localhost:3000/main");
+    }
+
     return (
         <Container>
             <div className='left'>
