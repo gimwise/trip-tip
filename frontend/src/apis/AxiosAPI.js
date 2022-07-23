@@ -8,7 +8,6 @@ const AxiosAPI = axios.create({
     timeout : 180000,
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': `JWT ${getCookie('access-token')}`
     },
 })
 

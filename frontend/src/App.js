@@ -30,7 +30,9 @@ function App() {
     try {
       let refresh = { refresh : getCookie("refresh-token")};
       // console.log(JSON.stringify(refresh));
-      AxiosAPI.post("/users/signin/refresh/", JSON.stringify(refresh))
+      AxiosAPI.post("/users/signin/refresh/", JSON.stringify(refresh),{
+        Authorization: `JWT ${getCookie('access-token')}`
+      })
       .then(res => {
         // console.log("access-token : " + res.data.access);
         AxiosAPI.defaults.headers.common['Authorization'] = 'JWT ' + res.data.access;
