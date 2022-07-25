@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
+import LogoutButton from 'components/Auth/LogoutButton';
 import logo from 'assets/image/logo-blue.png';
 import { NavLink } from 'react-router-dom';
 import { getCookie } from 'utils/Cookie';
@@ -30,18 +31,19 @@ const Header = ({isLogin}) => {
                 <>      
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
                     {isLogin === true ?
-                        <div>
+                        <>
                             <LinkImg to='/alert'>
                                 <img src={noAlertImg}/>
                             </LinkImg>
                             <LinkImg to='/mypage'>
                                 <img src={user}/>
                             </LinkImg>
-                        </div>
+                            <LogoutButton/>
+                        </>
                         :
-                        <div>
-                            로그인 안함
-                        </div>
+                        <>
+                            
+                        </>
                     }
                 </> 
             </Element>

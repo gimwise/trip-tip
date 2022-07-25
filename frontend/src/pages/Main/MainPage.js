@@ -9,7 +9,14 @@ import girl1 from 'assets/image/girl1.png'
 import girl2 from 'assets/image/girl2.png'
 
 
-const Main = () => {
+const Main = ({isLogin}) => {
+
+    if(isLogin === true){
+
+    }else{
+        window.location.replace("http://localhost:3000/signin");
+    }
+
     return (
         <Container>
             <Top>
@@ -31,7 +38,7 @@ const Main = () => {
                 </div>
                 <div className='box'>
                     <h1>
-                        최근 활동 >
+                        최근 활동
                     </h1>
                     <div className='party'>
                         <div>

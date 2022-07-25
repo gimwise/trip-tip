@@ -59,7 +59,7 @@ function App() {
           <Header isLogin={isLogin}/>
           <Routes>
             <Route path="/" element={<StartPage isLogin={isLogin}/>}/>
-            <Route path="main" element={<MainPage/>} />
+            <Route path="main" element={<MainPage isLogin={isLogin}/>} />
             <Route path="signin" element={<LoginPage/>} />
             <Route path="signup" element={<RegisterPage/>} />
             <Route path="alert" element={<AlertPage/>}/>
