@@ -34,7 +34,7 @@ const StartPage = ({isLogin}) => {
 export default StartPage;
 
 const Container = styled.div`
-    height : 90%;
+    height : 80vh;
     display : flex;
     justify-content: center;
     align-items: center;

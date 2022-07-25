@@ -20,6 +20,7 @@ import NotFound from 'pages/NotFound';
 import AxiosAPI from 'apis/AxiosAPI';
 import MyPage from 'pages/Auth/MyPage';
 import { getCookie } from 'utils/Cookie';
+import GroupList from 'components/Group/GroupList';
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
     return (
       <div className='App'>
         <BrowserRouter>
+          
           <Header isLogin={isLogin}/>
           <Routes>
             <Route path="/" element={<StartPage isLogin={isLogin}/>}/>
