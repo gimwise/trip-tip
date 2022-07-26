@@ -15,32 +15,75 @@ import ClearPage from 'pages/Group/ClearPage';
 import CalculatePage from 'pages/Group/CalculatePage';
 import GroupPage from 'pages/Group/GroupPage';
 import InputCodePage from 'pages/Group/InputCodePage.js';
+import AlertPage from 'pages/Main/AlertPage';
 import NotFound from 'pages/NotFound';
 import AxiosAPI from 'apis/AxiosAPI';
+import MyPage from 'pages/Auth/MyPage';
+import { getCookie } from 'utils/Cookie';
+import GroupList from 'components/Group/GroupList';
 
 
 function App() {
+  const [isLogin, setIsLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(()=>{
+    try {
+      let refresh = { refresh : getCookie("refresh-token")};
+      // console.log(JSON.stringify(refresh));
+      AxiosAPI.post("/users/signin/refresh/", JSON.stringify(refresh),{
+        Authorization: `JWT ${getCookie('access-token')}`
+      })
+      .then(res => {
+        // console.log("access-token : " + res.data.access);
+        AxiosAPI.defaults.headers.common['Authorization'] = 'JWT ' + res.data.access;
+        setIsLogin(true);
+      })
+      .catch(err => {
+          console.log("App Client Request Fail : " + err);
+          setIsLogin(false);
+        })
+        .finally(()=>{
+          console.log("Login Request End");
+          setLoading(true);
+        });
+    }catch(e){
+      console.log(e);
+    }
+  }, []);
 
 
-  return (
-    <BrowserRouter>
+  if(loading ){
+    return (
+      <div className='App'>
+        <BrowserRouter>
+          
+          <Header isLogin={isLogin}/>
+          <Routes>
+            <Route path="/" element={<StartPage isLogin={isLogin}/>}/>
+            <Route path="main" element={<MainPage isLogin={isLogin}/>} />
+            <Route path="signin" element={<LoginPage/>} />
+            <Route path="signup" element={<RegisterPage/>} />
+            <Route path="alert" element={<AlertPage/>}/>
+            <Route path="mypage" element={<MyPage/>}/>
+            <Route path="group" element={<GroupPage/>} />
+            <Route path="calculate" element={<CalculatePage/>} />
+            <Route path="code" element={<InputCodePage/>} />
+            <Route path="clear" element={<ClearPage/>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>    
+      </div>
+    )
+  }
+  else{
+    return(
+      <div>
+        Loading...
+      </div>
+    )
+  }
 
-      <Header/>
-
-      <Routes>
-        <Route path="/" element={<StartPage/>}/>
-        <Route path="main" element={<MainPage/>} />
-        <Route path="signin" element={<LoginPage/>} />
-        <Route path="signup" element={<RegisterPage/>} />
-        <Route path="group" element={<GroupPage/>} />
-        <Route path="calculate" element={<CalculatePage/>} />
-        <Route path="code" element={<InputCodePage/>} />
-        <Route path="clear" element={<ClearPage/>} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-
-    </BrowserRouter>
-  );
 }
 
 export default App;

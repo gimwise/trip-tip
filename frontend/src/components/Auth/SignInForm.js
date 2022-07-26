@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AxiosAPI from 'apis/AxiosAPI';
 import styled from 'styled-components';
-import { getCookie, setCookie } from 'utils/Cookie';
+import { setCookie } from 'utils/Cookie';
 
 const SignInForm = () => {
     const [nickname, setNickname] = useState("");
@@ -17,8 +17,8 @@ const SignInForm = () => {
             }
         ).then((res)=>{
             console.log(res.data.refresh);
-            localStorage.setItem('refresh', res.data.refresh);
-            setCookie('access-token', res.data['access-token']);
+            setCookie('refresh-token', res.data.refresh);
+            setCookie('access-token', res.data.access);
             setCookie('nickname', nickname);
             
             window.location.replace("http://localhost:3000/main");
@@ -62,7 +62,7 @@ export default SignInForm;
 
 const Container = styled.div`
     width : 100%;
-    height : 90%;
+    height : 80vh;
     display : flex;
     flex-direction: column;
     justify-content: center;
