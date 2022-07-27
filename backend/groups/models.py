@@ -38,7 +38,7 @@ class Group(models.Model):
 
 class Member(models.Model):
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, db_column='user_id',)
-    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group_info', db_column='group_id',)
+    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id',)
 
 class Meeting(models.Model):
     meeting_id = models.BigAutoField(

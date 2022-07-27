@@ -1,3 +1,5 @@
+from asyncio import QueueEmpty
+from tokenize import group
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,7 +10,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import CustomUser
 from groups.models import Group, Member
-from .serializers import GroupSerializer, MemberSerializer
+from .serializers import GroupListSerializer, GroupSerializer, MemberSerializer
 from .permissions import GroupLeaderPermission
 
 '''
@@ -24,24 +26,34 @@ def get_user_from_access_token(access_token_str):
     return Response(content)
 '''
 
-class GroupView(ListAPIView):
+# ======================================================================================== #
+# Group
+
+class GroupView(ListAPIView): # 이 부분 수정 필요. 코드 맘에 안 듦.
     permission_classes = [IsAuthenticated, ]
-    serializer_class = GroupSerializer
 
     def get(self, request):
         user = request.user
-        member = Member.objects.filter(user_id=user)
-        query = member.values('group_id__group_id') # Member Fk로 Group정보 가져옴
+        member_query = Member.objects.filter(user_id=user).values('group_id__group_id')    
         data = []
-        for i in range(len(query)):
-            group = Group.objects.filter(group_id=query[i]['group_id__group_id'])
+
+        for q in member_query:
+            group = Group.objects.get(group_id=q['group_id__group_id'])
+            group_member_query = group.member_set.all().values('user_id__username')
+
+            member_list, b = {}, 0
+            for a in group_member_query:
+                member_list[f"{b}"] = CustomUser.objects.get(username=a['user_id__username'])
+                b += 1
+            
             data.append({
-                'leader': group[0].leader,
-                'group_id': group[0].group_id,
-                'group_name': group[0].group_name,
-                'code': group[0].code,
+                'leader_nick': group.leader,
+                'group_id': group.group_id,
+                'group_name': group.group_name,
+                'code': group.code,
+                'member': member_list.values()
             })
-        serializer = GroupSerializer(data, many=True)
+        serializer = GroupListSerializer(data, many=True)
         return Response(serializer.data)
 
 class DetailGroupView(RetrieveAPIView):
@@ -85,24 +97,56 @@ class JoinGroupView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        user_id = request.user.user_id
+        user = request.user
         code = request.data['code']
-        group_id = Group.objects.filter(code=code)[0].group_id
+        group = Group.objects.filter(code=code)
+
+        if not group.exists():
+            return Response(
+                    {"message": "존재하지 않는 그룹입니다."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        group_id = group[0].group_id  
         data = {
-            "user_id": user_id,
+            "user_id": user.user_id,
             "group_id": group_id
         }
         serializer = MemberSerializer(data=data)
+
         if serializer.is_valid():
+            if user.member_set.filter(group_id=data['group_id']).exists():
+                return Response(
+                    {"message": "이미 가입된 그룹입니다."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             serializer.save()
             return Response(
-                {"m" : "성공적으로 가입되었습니다."},
+                {"message" : "성공적으로 가입되었습니다."},
                 status=status.HTTP_200_OK
             )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ======================================================================================== #
+# Meeting
+
+class CompletionMeetingView(APIView):
+    permission_classes = [IsAuthenticated, GroupLeaderPermission]
+    def post(self, request):
+        pass
 
 
 
-    
+# ======================================================================================== #
+# Receipt
+
+
+
+
+# ======================================================================================== #
+# Participant
+
+
+
