@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { request } from 'apis/request';
 import styled from 'styled-components';
 import { setCookie } from 'utils/Cookie';
-import { Axios } from 'axios';
+import AxiosAPI from 'apis/AxiosAPI';
 
 
 const SignInForm = () => {
@@ -19,15 +19,15 @@ const SignInForm = () => {
         };
 
 
-        Axios.post(
+        AxiosAPI.post(
             '/users/signin/', {
                 nickname : nickname,
                 password : password
             }
         ).then((res)=>{
-            console.log(res);
-            setCookie('refresh-token', res.refresh);
-            setCookie('access-token', res.access);
+            // console.log(res);
+            setCookie('refresh-token', res.data.refresh);
+            setCookie('access-token', res.data.access);
             setCookie('nickname', nickname);
             
             window.location.replace("http://localhost:3000/main");

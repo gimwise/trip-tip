@@ -7,8 +7,7 @@ import boy1 from 'assets/image/boy1.png'
 import boy2 from 'assets/image/boy1.png'
 import girl1 from 'assets/image/girl1.png'
 import girl2 from 'assets/image/girl2.png'
-import GroupList from 'components/Group/GroupList';
-
+import GroupListPage from 'pages/Group/GroupListPage';
 
 const Main = ({isLogin}) => {
 
@@ -20,7 +19,6 @@ const Main = ({isLogin}) => {
 
     return (
         <Container>
-            <GroupList/>
             <div className='top-content'>
                 <div className='right'>
                     <p>     
@@ -32,8 +30,9 @@ const Main = ({isLogin}) => {
 
             <div className='bottom-content'>
                 <div className='btns'>
-                    <GroupMake to="/group">그룹 생성</GroupMake>
-                    <GroupJoin to="/code">그룹 참여</GroupJoin>
+                    <GroupBtn to="/group-list">그룹 리스트</GroupBtn>
+                    <GroupBtn to="/group">그룹 생성</GroupBtn>
+                    <GroupBtn to="/code">그룹 참여</GroupBtn>
                 </div>
 
                 <div className='logs'>
@@ -166,7 +165,8 @@ const GroupMake = styled(NavLink)`
     border-radius : 5px;
     
 `;
-const GroupJoin = styled(NavLink)`
+
+const GroupBtn = styled(NavLink)`
     width : 150px;
     height : 50px;
     display : flex;
@@ -178,4 +178,4 @@ const GroupJoin = styled(NavLink)`
     text-align : center;
     border-radius : 5px;
     margin-left : 50px;
-`
+`;
