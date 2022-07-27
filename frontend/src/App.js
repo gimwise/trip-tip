@@ -20,7 +20,7 @@ import NotFound from 'pages/NotFound';
 import AxiosAPI from 'apis/AxiosAPI';
 import MyPage from 'pages/Auth/MyPage';
 import { getCookie } from 'utils/Cookie';
-import GroupList from 'components/Group/GroupList';
+import GroupListPage from 'pages/Group/GroupListPage';
 
 
 function App() {
@@ -62,14 +62,16 @@ function App() {
           <Routes>
             <Route path="/" element={<StartPage isLogin={isLogin}/>}/>
             <Route path="main" element={<MainPage isLogin={isLogin}/>} />
-            <Route path="signin" element={<LoginPage/>} />
-            <Route path="signup" element={<RegisterPage/>} />
-            <Route path="alert" element={<AlertPage/>}/>
-            <Route path="mypage" element={<MyPage/>}/>
-            <Route path="group" element={<GroupPage/>} />
-            <Route path="calculate" element={<CalculatePage/>} />
-            <Route path="code" element={<InputCodePage/>} />
-            <Route path="clear" element={<ClearPage/>} />
+
+            <Route path="/signin" element={<LoginPage/>} />
+            <Route path="/signup" element={<RegisterPage/>} />
+            <Route path="/alert" element={<AlertPage/>}/>
+            <Route path="/mypage" element={<MyPage/>}/>
+            <Route path="/group-list" element={<GroupListPage/>}/>
+            <Route path="/group" element={<GroupPage/>} />
+            <Route path="/calculate" element={<CalculatePage/>} />
+            <Route path="/code" element={<InputCodePage/>} />
+            <Route path="/clear" element={<ClearPage/>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>    

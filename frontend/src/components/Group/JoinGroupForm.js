@@ -21,11 +21,20 @@ const JoinGroupForm = () => {
             Authorization: `JWT ${getCookie('access-token')}`
         }
         ).then(res=>{
+            console.log(res);
             window.location.replace("http://localhost:3000/main");
         })
         .catch(err=> {
-            console.log(err);
-            alert("잘못된 코드입니다.");
+            if(err.response.data.message === '이미 가입된 그룹입니다.'){
+                console.log("이미 가입");
+                alert("이미 가입한 그룹입니다..");
+            }
+            else{
+                console.log("코드 오류");
+                alert("잘못된 코드입니다.");
+            }
+            // console.log(err.response.data.message);
+            
         })
     }
 
