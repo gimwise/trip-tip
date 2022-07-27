@@ -1,15 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import JoinGroupForm from 'components/Group/JoinGroupForm';
 import styled from 'styled-components';
 
 const InputCodePage = () => {
+
     return (
         <Container>
-            <h2>코드 입력</h2>
-            <input
-                placeholder='CODE'
-            />
-            <Btn to="/calculate">참여</Btn>
+            <div>
+                <h2>코드 입력</h2>
+                <JoinGroupForm/>
+            </div>
         </Container>
     );
 };
@@ -17,7 +17,7 @@ export default InputCodePage;
 
 const Container = styled.div`
     width : 100%;
-    height : 90%;
+    height : 80vh;
     display : flex;
     justify-content: center;
     align-items: center;
@@ -28,7 +28,12 @@ const Container = styled.div`
         text-align:left;
     }
 
-    input{
+    form{
+        display : flex;
+        flex-direction : column;
+        align-items : center;
+    }
+    .input{
         border : 1px solid #C7C7C7;
         border-radius : 25px;
         width : 600px;
@@ -39,16 +44,14 @@ const Container = styled.div`
         text-align:left;
         font-color : 
     }
+    .submit{
+        padding : 15px;
+        background-color : #0065FF;
+        width : 250px;
+        border : none;
+        border-radius : 10px;
+        color : white;
+        cursor : pointer;
+    }
 }
 `
-const Btn = styled(NavLink)`
-    width : 300px;
-    height : 25px;
-    background-color: #0065FF;
-    color : white;
-    text-decoration : none;
-    padding : 20px;
-    text-align : center;
-    border-radius : 5px;
-    margin-top : 60px;
-`;
