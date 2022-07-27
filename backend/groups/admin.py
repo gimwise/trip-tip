@@ -15,7 +15,7 @@ class MemberAdmin(admin.ModelAdmin):
 @admin.register(Meeting)
 class MeetingAdmin(admin.ModelAdmin):
     ordering = ('-group_id',)
-    list_display = ('meeting_id', 'meeting_name','group_id' ,'is_clear', 'create_dt')
+    list_display = ('meeting_id', 'group_id' ,'is_clear', 'create_dt')
 
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):

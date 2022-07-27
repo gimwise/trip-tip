@@ -1,8 +1,5 @@
 from django.urls import path
-from .views import (
-    GroupView, DetailGroupView, CreateGroupView, JoinGroupView,
-    CompletionMeetingView,
-)
+from .views import *
 
 app_name = 'groups'
 
@@ -13,7 +10,7 @@ urlpatterns = [
     path('join/', JoinGroupView.as_view(), name="group-join"),
     # path('delete/', DeleteGroupView.as_view(), name="group-delete"),
 
-    # path('<int:pk>/create/', CreateMeetingView.as_view(), name="meeting-create"),
+    path('<int:pk>/create/', CreateMeetingView.as_view(), name="meeting-create"),
     # path('<int:pk>/delete/', DeleteMeetingView.as_view(), name="meeting-delete"),
     # path('<int:pk>/completion/', CompletionMeetingView.as_view(), name="group-completion"),
 ]

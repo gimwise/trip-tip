@@ -1,5 +1,5 @@
-from asyncio import QueueEmpty
-from tokenize import group
+from json import loads, dumps
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,21 +10,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import CustomUser
 from groups.models import Group, Member
-from .serializers import GroupListSerializer, GroupSerializer, MemberSerializer
-from .permissions import GroupLeaderPermission
-
-'''
-def get_user_from_access_token(access_token_str):
-    access_token_obj = AccessToken(access_token_str)
-    user_id=access_token_obj['user_id']
-    user=CustomUser.objects.get(user_id=user_id)
-    content =  {
-        'user_id' : user.user_id, 
-        'nickname': user.nickname, 
-        'username': user.username
-    }
-    return Response(content)
-'''
+from .serializers import *
+from .permissions import GroupLeaderPermission, GroupMemberPermission
 
 # ======================================================================================== #
 # Group
@@ -41,17 +28,16 @@ class GroupView(ListAPIView): # 이 부분 수정 필요. 코드 맘에 안 듦.
             group = Group.objects.get(group_id=q['group_id__group_id'])
             group_member_query = group.member_set.all().values('user_id__username')
 
-            member_list, b = {}, 0
-            for a in group_member_query:
-                member_list[f"{b}"] = CustomUser.objects.get(username=a['user_id__username'])
-                b += 1
+            member_list = []
+            for new_meeting in group_member_query:
+                member_list.append(CustomUser.objects.get(username=new_meeting['user_id__username']))
             
             data.append({
                 'leader_nick': group.leader,
                 'group_id': group.group_id,
                 'group_name': group.group_name,
                 'code': group.code,
-                'member': member_list.values()
+                'member': member_list
             })
         serializer = GroupListSerializer(data, many=True)
         return Response(serializer.data)
@@ -63,8 +49,7 @@ class DetailGroupView(RetrieveAPIView):
 
 class CreateGroupView(CreateAPIView):
     permission_classes = [IsAuthenticated]
-    # queryset = Group.objects.all()
-    # serializer_class = GroupSerializer
+
     def post(self, request):
         user_id = request.user.user_id
         request.data['leader'] = user_id
@@ -132,12 +117,34 @@ class JoinGroupView(CreateAPIView):
 # ======================================================================================== #
 # Meeting
 
+class CreateMeetingView(APIView):
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
+
+    def get(self, request, pk, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
+        data = {"group_id" : pk}
+        serializer = MeetingSerializer(data=data)
+
+        if serializer.is_valid():
+            new_meeting = Meeting.objects.filter(group_id=pk)
+            if new_meeting:
+                instance = MeetingSerializer(new_meeting, many=True)
+                if serializer.data['create_dt'] == loads(dumps(instance.data[-1]))['create_dt']: # 가장 최근의 meeting 날짜
+                    return Response(
+                        {
+                            "message" : f"{loads(dumps(instance.data[-1]))['create_dt']}의 미팅이 이미 존재합니다."
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CompletionMeetingView(APIView):
     permission_classes = [IsAuthenticated, GroupLeaderPermission]
     def post(self, request):
         pass
-
-
 
 # ======================================================================================== #
 # Receipt

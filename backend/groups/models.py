@@ -46,13 +46,11 @@ class Meeting(models.Model):
         unique=True, 
         verbose_name="meeting_id"
     )
-    meeting_name = models.CharField(max_length=45, verbose_name="meeting_name", default="meeting")
+    meeting_name = models.CharField(max_length=45, verbose_name="meeting_name", default="meeting") # 최종 단계에서 삭제
     create_dt = models.DateTimeField(default=timezone.now, blank=True, null=True)
     is_clear = models.BooleanField(default=False)
     group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
 
-    def __str__(self):
-        return self.meeting_name
 
 class Receipt(models.Model):
     receipt_id = models.BigAutoField(
