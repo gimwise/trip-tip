@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
-import AxiosAPI from 'apis/AxiosAPI';
+import { request } from 'apis/request';
 import styled from 'styled-components';
 import { setCookie } from 'utils/Cookie';
+import { Axios } from 'axios';
+
 
 const SignInForm = () => {
+
     const [nickname, setNickname] = useState("");
     const [password, setPassword] = useState("");
 
     const onSubmit = (e) =>{
         e.preventDefault();
 
-        AxiosAPI.post(
+        const body = {
+            nickname : nickname,
+            password : password
+        };
+
+
+        Axios.post(
             '/users/signin/', {
                 nickname : nickname,
                 password : password
             }
         ).then((res)=>{
-            console.log(res.data.refresh);
-            setCookie('refresh-token', res.data.refresh);
-            setCookie('access-token', res.data.access);
+            console.log(res);
+            setCookie('refresh-token', res.refresh);
+            setCookie('access-token', res.access);
             setCookie('nickname', nickname);
             
             window.location.replace("http://localhost:3000/main");
