@@ -1,9 +1,14 @@
 import React, { useEffect } from 'react';
 import AxiosAPI from 'apis/AxiosAPI';
-import { getCookie, removeCookie } from 'utils/Cookie';
+import { getCookie } from 'utils/Cookie';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+import { logout } from 'store/auth';
+import { useNavigate } from 'react-router-dom';
 
 const LogoutButton = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const onClick = () => {
 
@@ -11,22 +16,14 @@ const LogoutButton = () => {
             refresh : getCookie('refresh-token')
         }
 
-        console.log(body);
-
-        AxiosAPI.post(
-            '/users/signout/',
-        {
-            refresh : getCookie('refresh-token')
-        }
-        ,{
-            Authorization: `JWT ${getCookie('access-token')}`
-        }).then((res)=> {
-            console.log(res.data);
-            window.location.replace("http://localhost:3000/");
-            
-        }).catch((err)=>{
-            console.log(err);
+        dispatch(logout(body)).then(res => {
+            console.log("🟢 LOGOUT SUCCESS");
+            navigate("/");
+        }).catch(err=>{
+            console.log("🔴 LOGINOUT FAILURE");
         })
+
+
 
 
     }

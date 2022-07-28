@@ -1,11 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from 'components/Header/Header';
 import LoginPage from 'pages/Auth/LoginPage';
 import RegisterPage from 'pages/Auth/RegisterPage';
@@ -17,74 +11,70 @@ import GroupPage from 'pages/Group/GroupPage';
 import InputCodePage from 'pages/Group/InputCodePage.js';
 import AlertPage from 'pages/Main/AlertPage';
 import NotFound from 'pages/NotFound';
-import AxiosAPI from 'apis/AxiosAPI';
 import MyPage from 'pages/Auth/MyPage';
-import { getCookie } from 'utils/Cookie';
 import GroupListPage from 'pages/Group/GroupListPage';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { refreshToken } from 'store/auth';
+import { getCookie, removeCookie, setCookie } from 'utils/Cookie';
+import { useCookies } from 'react-cookie';
 
 function App() {
-  const [isLogin, setIsLogin] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(()=>{
-    try {
-      let refresh = { refresh : getCookie("refresh-token")};
-      // console.log(JSON.stringify(refresh));
-      AxiosAPI.post("/users/signin/refresh/", JSON.stringify(refresh),{
-        Authorization: `JWT ${getCookie('access-token')}`
-      })
-      .then(res => {
-        // console.log("access-token : " + res.data.access);
-        AxiosAPI.defaults.headers.common['Authorization'] = 'JWT ' + res.data.access;
-        setIsLogin(true);
-      })
-      .catch(err => {
-          console.log("App Client Request Fail : " + err);
-          setIsLogin(false);
-        })
-        .finally(()=>{
-          console.log("Login Request End");
-          setLoading(true);
-        });
-    }catch(e){
-      console.log(e);
+  const dispatch = useDispatch();
+  const authStore = useSelector(store => store.auth);
+  // console.log(store);
+
+  useEffect(() => {
+    
+    const refresh_token = {
+      refresh : `${getCookie('refresh-token')}`
+    };
+
+    const access_token = {
+      Authorization : `JWT ${getCookie('access-token')}`
     }
+    console.log(refresh_token);
+    console.log(access_token);
+
+    dispatch(refreshToken(refresh_token)).then(res => {
+      setCookie("access-token", res.payload.data.access);
+      console.log("🍪 HAVE COOKIE, REFRESH ACCESS-TOKEN");
+    }).catch(err => {
+      console.log(err);
+      if(err.response.status === 401){
+        console.log("🍪 NO COOKIE or TOKEN IS NOT VALID");
+        removeCookie("access-token");
+        // removeCookie("refresh-token");
+      }
+    });
+
   }, []);
+  
 
 
-  if(loading ){
-    return (
-      <div className='App'>
-        <BrowserRouter>
-          
-          <Header isLogin={isLogin}/>
-          <Routes>
-            <Route path="/" element={<StartPage isLogin={isLogin}/>}/>
-            <Route path="main" element={<MainPage isLogin={isLogin}/>} />
+  return (
+    <div className='App'>
+      <BrowserRouter>
+        
+        <Header />
+        <Routes>
+          <Route path="/" element={<StartPage/>}/>
+          <Route path="main" element={<MainPage/>} />
 
-            <Route path="/signin" element={<LoginPage/>} />
-            <Route path="/signup" element={<RegisterPage/>} />
-            <Route path="/alert" element={<AlertPage/>}/>
-            <Route path="/mypage" element={<MyPage/>}/>
-            <Route path="/group-list" element={<GroupListPage/>}/>
-            <Route path="/group" element={<GroupPage/>} />
-            <Route path="/calculate" element={<CalculatePage/>} />
-            <Route path="/code" element={<InputCodePage/>} />
-            <Route path="/clear" element={<ClearPage/>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>    
-      </div>
-    )
-  }
-  else{
-    return(
-      <div>
-        Loading...
-      </div>
-    )
-  }
+          <Route path="/signin" element={<LoginPage/>} />
+          <Route path="/signup" element={<RegisterPage/>} />
+          <Route path="/alert" element={<AlertPage/>}/>
+          <Route path="/mypage" element={<MyPage/>}/>
+          <Route path="/group-list" element={<GroupListPage/>}/>
+          <Route path="/group" element={<GroupPage/>} />
+          <Route path="/calculate" element={<CalculatePage/>} />
+          <Route path="/code" element={<InputCodePage/>} />
+          <Route path="/clear" element={<ClearPage/>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>    
+    </div>
+  )
 
 }
 

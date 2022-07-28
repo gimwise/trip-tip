@@ -7,20 +7,27 @@ import { getCookie } from 'utils/Cookie';
 import noAlertImg from 'assets/image/bell-01.png';
 import alertImg from 'assets/image/bell-02.png';
 import user from 'assets/image/user.png';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 
-const Header = ({isLogin}) => {
+const Header = () => {
 
-    const [username, setUsername] = useState("");
+    const authStore = useSelector(store => store.auth);
+    const navigate = useNavigate();
 
     useEffect(()=>{
-        setUsername(getCookie("nickname")); // 지금은 nickname
-    }, [username]);
-
+        if(authStore.isLogin === true){
+            console.log("LOGIN");
+        }
+        else{
+            
+        }
+    }, []);
 
     return (
         <Container>
-            <Logo href={isLogin === true ? `/main` : `/`}>
+            <Logo href={authStore.isLogin === true ? `/main` : `/`}>
                 <LogoImg
                     src={logo}
                     alt='logo'
@@ -30,7 +37,7 @@ const Header = ({isLogin}) => {
             <Element>
                 <>      
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
-                    {isLogin === true ?
+                    {authStore.isLogin === true ?
                         <>
                             <LinkImg to='/alert'>
                                 <img src={noAlertImg}/>

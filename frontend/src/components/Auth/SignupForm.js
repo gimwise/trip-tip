@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import AxiosAPI from 'apis/AxiosAPI';
 import styled from 'styled-components';
 import signupImg from 'assets/image/signup-page-img.png';
+import { useDispatch } from 'react-redux';
+import { register } from 'store/auth';
 
 const BANK = [
     "하나",
@@ -12,6 +14,7 @@ const BANK = [
 ];
 
 const SignupForm = () => {
+    const dispatch = useDispatch();
 
     const [nickname, setNickname] = useState("");
     const [username, setUsername] = useState("");
@@ -42,28 +45,37 @@ const SignupForm = () => {
             nickname : nickname,
             username : username,
             password : password1,
+            bank : bank,
+            account : account,
+            phone : phone
         };
-
-        console.log(users);
-
-        AxiosAPI.post(
-            '/users/signup/',
-            {
-                nickname : nickname,
-                username : username,
-                password : password1
-            }
-        ).then((res)=>{
-            console.log(res);
-            window.location.replace("http://localhost:3000/signin");
-        }).catch((error)=> {
-            console.log(error);
-            if(error.response.data.nickname[0] === 'user with this nickname already exists.'){
+        dispatch(register(users)).then(res => {
+            console.log("🟢 REGISTER USER SUCCESS");
+        }).catch(err => {
+            if(err.response.data.nickname[0] === 'user with this nickname already exists.'){
+                console.log("🔴 NICKNAME ALREADY EXISTS");
                 alert("이미 사용중인 아이디입니다.");
             }else{
+                console.log("🔴 REGISTER USER FAILURE");
                 alert("정확히 정보를 입력하세요.");
             }
-        });
+        })
+    
+
+        // AxiosAPI.post(
+        //     '/users/signup/',
+        //     users
+        // ).then((res)=>{
+        //     console.log(res);
+        //     window.location.replace("http://localhost:3000/signin");
+        // }).catch((error)=> {
+        //     console.log(error);
+        //     if(error.response.data.nickname[0] === 'user with this nickname already exists.'){
+        //         alert("이미 사용중인 아이디입니다.");
+        //     }else{
+        //         alert("정확히 정보를 입력하세요.");
+        //     }
+        // });
     };
 
     return (
