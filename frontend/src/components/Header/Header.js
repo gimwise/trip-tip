@@ -14,17 +14,14 @@ import { useNavigate } from 'react-router-dom';
 const Header = () => {
 
     const authStore = useSelector(store => store.auth);
-    const navigate = useNavigate();
-
-    useEffect(()=>{
-        if(authStore.isLogin === true){
-            console.log("LOGIN");
-        }
-        else{
-            
-        }
-    }, []);
-
+    const groupStore = useSelector(store => store.group);
+    
+    const a = () => {
+        console.log(authStore);
+    }
+    const g = () => {
+        console.log(groupStore);
+    }
     return (
         <Container>
             <Logo href={authStore.isLogin === true ? `/main` : `/`}>
@@ -35,7 +32,9 @@ const Header = () => {
                 <LogoTitle>TRIP TIP</LogoTitle>
             </Logo>
             <Element>
-                <>      
+                <>     
+                <button onClick={a}>사용자 스토어</button>
+                <button onClick={g}>그룹 스토어</button> 
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
                     {authStore.isLogin === true ?
                         <>
