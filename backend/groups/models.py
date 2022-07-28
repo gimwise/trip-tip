@@ -15,7 +15,7 @@ def generate_random_slug_code(length=8):
         codecs.encode(uuid.uuid4().bytes, "base64").rstrip()
     ).decode()[:length]
 
-CustomUser = settings.AUTH_USER_MODEL
+CustomUser = get_user_model()
 
 class Group(models.Model):
     group_id = models.BigAutoField(

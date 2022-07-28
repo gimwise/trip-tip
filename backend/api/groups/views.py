@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
 
-from rest_framework_simplejwt.tokens import AccessToken
-
 from users.models import CustomUser
 from groups.models import Group, Member
 from .serializers import *
@@ -44,8 +42,25 @@ class GroupView(ListAPIView): # 이 부분 수정 필요. 코드 맘에 안 듦.
 
 class DetailGroupView(RetrieveAPIView):
     permission_classes = [IsAuthenticated, GroupLeaderPermission]
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+    
+    def get(self, request, pk, *args, **kwargs):
+        group = Group.objects.get(group_id=pk)
+        member = list(group.member_set.all().values('user_id__username')) # 이런 식으로 하면 이슈가 발생할 수도 있음...
+
+        member_list = []
+        for m in member:
+            member_list.append(m['user_id__username'])
+
+        data = {
+            'leader_nick': group.leader,
+            'group_id': group.group_id,
+            'group_name': group.group_name,
+            'code': group.code,
+            'member': member_list,
+        }
+
+        serializer = GroupListSerializer(data)
+        return Response(serializer.data)
 
 class CreateGroupView(CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -114,6 +129,9 @@ class JoinGroupView(CreateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class DeleteGroupView(): # 정산이 완료된 멤버에 한해서 탈퇴 가능. 현재 구현 불가능 (필요 데이터 부족)
+    pass
+
 # ======================================================================================== #
 # Meeting
 
@@ -122,7 +140,7 @@ class CreateMeetingView(APIView):
 
     def get(self, request, pk, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
         data = {"group_id" : pk}
-        serializer = MeetingSerializer(data=data)
+        serializer = MeetingSerializer(data=data)  
 
         if serializer.is_valid():
             new_meeting = Meeting.objects.filter(group_id=pk)

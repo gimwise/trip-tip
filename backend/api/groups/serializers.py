@@ -1,6 +1,13 @@
-from dataclasses import field
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from groups.models import *
+
+CustomUser = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('nickname', 'username')
 
 class GroupListSerializer(serializers.ModelSerializer):
     leader_nick = serializers.CharField(max_length=45)
