@@ -13,7 +13,8 @@ const LogoutButton = () => {
 
         console.log(body);
 
-        AxiosAPI.get("/users/signout",
+        AxiosAPI.post(
+            '/users/signout/',
         {
             refresh : getCookie('refresh-token')
         }
@@ -21,10 +22,13 @@ const LogoutButton = () => {
             Authorization: `JWT ${getCookie('access-token')}`
         }).then((res)=> {
             console.log(res.data);
+            window.location.replace("http://localhost:3000/");
             
         }).catch((err)=>{
             console.log(err);
         })
+
+
     }
 
     return (
