@@ -59,7 +59,7 @@ class SignInUserView(APIView):
 class SignOutUserView(APIView):
     permission_classes = [ IsAuthenticated ]
 
-    def get(self, request, *args):
+    def post(self, request, *args):
         user = RefreshTokenSerializer(data=request.data)
         user.is_valid(raise_exception=True)
         user.save()
