@@ -6,18 +6,24 @@ import styled from 'styled-components';
 const LogoutButton = () => {
 
     const onClick = () => {
-        AxiosAPI.post('/users/signout/', {
-            "refresh" : getCookie('refresh-token')
-        }, 
-        {
-            Authorization: `JWT ${getCookie('access-token')}`
-        })
-        .then(res => {
-            removeCookie('access-token');
-            removeCookie('refresh-token');
-            removeCookie('nickname');
 
-            window.location.replace("http://localhost:3000/");
+        const body = {
+            refresh : getCookie('refresh-token')
+        }
+
+        console.log(body);
+
+        AxiosAPI.get("/users/signout",
+        {
+            refresh : getCookie('refresh-token')
+        }
+        ,{
+            Authorization: `JWT ${getCookie('access-token')}`
+        }).then((res)=> {
+            console.log(res.data);
+            
+        }).catch((err)=>{
+            console.log(err);
         })
     }
 
