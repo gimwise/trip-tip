@@ -13,11 +13,14 @@ const LogoutButton = () => {
 
         console.log(body);
 
-        AxiosAPI.get("/users/signout",body,{
+        AxiosAPI.get("/users/signout",
+        {
+            refresh : getCookie('refresh-token')
+        }
+        ,{
             Authorization: `JWT ${getCookie('access-token')}`
         }).then((res)=> {
-            // setList(res.data);
-            console.log(res);
+            console.log(res.data);
             
         }).catch((err)=>{
             console.log(err);

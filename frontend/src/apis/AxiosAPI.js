@@ -1,7 +1,7 @@
 import axios, { Axios } from "axios";
 import { getCookie } from "utils/Cookie";
 
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 
 const AxiosAPI = axios.create({
     baseURL : 'http://127.0.0.1:8000/api',

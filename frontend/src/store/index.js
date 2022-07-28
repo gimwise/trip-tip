@@ -1,8 +1,4 @@
-import { combineReducers } from 'redux';
-import user from './user';
+import { ping } from "./ping";
+import { combineReducers } from "redux";
 
-const rootReducer = combineReducers({
-    user,
-});
-
-export default rootReducer;
+export const rootReducers = combineReducers({ ping });
