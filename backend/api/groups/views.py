@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView
 
 from users.models import CustomUser
 from groups.models import Group, Member
@@ -57,17 +57,14 @@ class GroupView(ListAPIView):
         for q in member_query:
             group = Group.objects.get(group_id=q['group_id__group_id'])
             group_member_query = group.member_set.all().values('user_id__username')
-
-            member_list = []
-            for new_meeting in group_member_query:
-                member_list.append(CustomUser.objects.get(username=new_meeting['user_id__username']))
+            group_member_list = [d['user_id__username'] for d in group_member_query]
             
             data.append({
                 'leader_nick': group.leader,
                 'group_id': group.group_id,
                 'group_name': group.group_name,
                 'code': group.code,
-                'member': member_list
+                'member': group_member_list
             })
         serializer = GroupListSerializer(data, many=True)
         return Response(serializer.data)
@@ -77,15 +74,12 @@ class DetailGroupView(RetrieveAPIView):
     
     def get(self, request, pk, *args, **kwargs):
         group = Group.objects.get(group_id=pk)
-        member = list(group.member_set.all().values('user_id__username')) # 이런 식으로 하면 이슈가 발생할 수도 있음...
-        
+        member = group.member_set.all().values('user_id__username') # 이런 식으로 하면 이슈가 발생할 수도 있음...
+        member_list = [d['user_id__username'] for d in member]
+
         meeting = group.meeting_set.all().values()
         meeting_serializer = ListMeetingSerializer(meeting, many=True)
         meeting_json = loads(dumps(meeting_serializer.data))
-
-        member_list = []
-        for m in member:
-            member_list.append(m['user_id__username'])
 
         data = {
             'leader_nick': group.leader,
@@ -146,19 +140,35 @@ class CreateMeetingView(APIView): # 이미 존재하는 날짜에 대한 예외�
     def get(self, request, pk, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
         data = {"group_id" : pk}
         serializer = CreateMeetingSerializer(data=data)  
-        if serializer.is_valid():   
-            serializer.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
-class MeetingView(ListAPIView):
-    permission_classes = [IsAuthenticated, GroupMemberPermission]
-    queryset = Meeting.objects.all()
-    serializer_class = ListMeetingSerializer
-
-class DetailMeetingView(APIView):
+class DetailMeetingView(APIView): # 출력 format에 receipt 리스트 추가 예정!!!!!!!
     permission_classes = [IsAuthenticated, GroupMemberPermission]
 
+    def get(self, request, pk, meeting_id, *args, **kwargs):
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        meeting_json = ListMeetingSerializer(meeting)
+        return Response(meeting_json.data)
+
+class UpdateMeetingView(UpdateAPIView):
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
+    serializer_class = UpdateMeetingSerializer
+
+    def update(self, request, *args, **kwargs): # PUT
+        meeting_id = kwargs.pop('meeting_id', False)
+        instance = Meeting.objects.get(meeting_id=meeting_id)
+        data = {'create_dt': request.data['date']}
+
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(data["create_dt"])
+
+class DeleteMeetingView(APIView):
+    pass
 
 class CompletionMeetingView(APIView):
     permission_classes = [IsAuthenticated, GroupLeaderPermission]

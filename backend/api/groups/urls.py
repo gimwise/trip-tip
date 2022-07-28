@@ -10,8 +10,9 @@ urlpatterns = [
     path('join/', JoinGroupView.as_view(), name="group-join"),
     # path('delete/', DeleteGroupView.as_view(), name="group-delete"),
 
-    path('<int:pk>/meeting/<int:meeting_id>/', DetailMeetingView.as_view(), name="meeting-detail"),
-    path('<int:pk>/create/', CreateMeetingView.as_view(), name="meeting-create"),
-    # path('<int:pk>/delete/', DeleteMeetingView.as_view(), name="meeting-delete"),
-    # path('<int:pk>/completion/', CompletionMeetingView.as_view(), name="group-completion"),
+    path('<int:pk>/meetings/create/', CreateMeetingView.as_view(), name="meeting-create"),
+    path('<int:pk>/meetings/<int:meeting_id>/', DetailMeetingView.as_view(), name="meeting-detail"),
+    path('<int:pk>/meetings/<int:meeting_id>/update/', UpdateMeetingView.as_view(), name="meeting-update"),
+    # path('<int:pk>/meetings/<int:meeting_id>/delete/', DeleteMeetingView.as_view(), name="meeting-delete"),
+    # path('<int:pk>/meetings/<int:meeting_id>/completion/', CompletionMeetingView.as_view(), name="group-completion"),
 ]

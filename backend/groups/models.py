@@ -26,7 +26,7 @@ class Group(models.Model):
     group_name = models.CharField(max_length=45, verbose_name="group_name", default="group")
     code = models.CharField(
         max_length=45,
-        unique=True,
+        # unique=True,
         editable=False,
         default=generate_random_slug_code(),
         verbose_name="code",
@@ -46,8 +46,7 @@ class Meeting(models.Model):
         unique=True, 
         verbose_name="meeting_id"
     )
-    meeting_name = models.CharField(max_length=45, verbose_name="meeting_name", default="meeting") # 최종 단계에서 삭제
-    create_dt = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    create_dt = models.DateField(default=timezone.now, blank=True, null=True)
     is_clear = models.BooleanField(default=False)
     group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
 
@@ -60,7 +59,7 @@ class Receipt(models.Model):
     )
     receipt_name = models.CharField(max_length=45, verbose_name="receipt_name", default="receipt")
     total = models.IntegerField(default=0,)
-    is_clear = models.BooleanField(default=False)
+    is_clear = models.BooleanField(default=False) # 최후에 삭제
     meeting_id = models.ForeignKey(Meeting, on_delete=models.CASCADE, db_column='meeting_id')
     paid_by = models.ForeignKey(
         CustomUser,

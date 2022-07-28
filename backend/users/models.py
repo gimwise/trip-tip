@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 # Register
 class CustomAccountManger(BaseUserManager):
-    def create_superuser(self, nickname, username, password, phone, bank, bank_account, **extra_fields):
+    def create_superuser(self, nickname, username, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -15,16 +15,16 @@ class CustomAccountManger(BaseUserManager):
             raise ValueError('Superuser must be assigned to is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must be assigned to is_superuser=True.')
-        return self.create_user(nickname, username, password, phone, bank, bank_account, **extra_fields)
+        return self.create_user(nickname, username, password, **extra_fields)
 
-    def create_user(self, nickname, username, password, phone, bank, bank_account, **extra_fields):
+    def create_user(self, nickname, username, password, **extra_fields):
         if not nickname:
             raise ValueError(_('You must provide an nickname'))
 
         user = self.model(
             nickname=nickname, username=username, 
-            password=password, phone=phone,
-            bank=bank, bank_account=bank_account,
+            password=password, phone=extra_fields.pop('phone', None),
+            bank=extra_fields.pop('bank', None), bank_account=extra_fields.pop('bank_account', None),
             **extra_fields
         )
         user.set_password(password)

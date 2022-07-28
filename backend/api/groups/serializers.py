@@ -6,14 +6,17 @@ from groups.models import *
 
 CustomUser = get_user_model()
 
+# user
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('nickname', 'username')
+        fields = ('username',)
 
+# group
 class GroupListSerializer(serializers.ModelSerializer):
     leader_nick = serializers.CharField(max_length=45)
     member = serializers.ListField(child=serializers.CharField())
+    code = serializers.CharField(default=generate_random_slug_code())
     class Meta:
         model = Group
         fields = ('leader_nick', 'group_name', 'group_id', 'code', 'member')
@@ -32,13 +35,15 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# member
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = '__all__'
 
+# meeting
 class CreateMeetingSerializer(serializers.ModelSerializer):
-    create_dt = serializers.DateTimeField(default=timezone.now, format='%Y-%m-%d')
+    create_dt = serializers.DateField(default=timezone.now, format='%Y-%m-%d')
     class Meta:
         model = Meeting
         fields = '__all__'
@@ -54,17 +59,24 @@ class CreateMeetingSerializer(serializers.ModelSerializer):
         return attrs
 
 class ListMeetingSerializer(serializers.ModelSerializer):
-    create_dt = serializers.DateTimeField(format='%Y-%m-%d')
+    create_dt = serializers.DateField(format='%Y-%m-%d')
     class Meta:
         model = Meeting
         exclude = ['group_id']
 
+class UpdateMeetingSerializer(serializers.ModelSerializer):
+    create_dt = serializers.DateField(format='%Y-%m-%d')
+    class Meta:
+        model = Meeting
+        fields = ['create_dt']
+
+# receipt
 class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
         fields = '__all__'
 
-
+# participant
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
