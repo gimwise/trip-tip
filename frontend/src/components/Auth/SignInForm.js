@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { request } from 'apis/request';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { login, setAccessToken, setIsLogin, setRefreshToken } from 'store/auth';
+import { useNavigate } from 'react-router-dom';
 import { setCookie } from 'utils/Cookie';
-import AxiosAPI from 'apis/AxiosAPI';
-
 
 const SignInForm = () => {
+    const dispatch = useDispatch();
+    const store = useSelector(store => store.auth);
+    const navigate = useNavigate();
 
     const [nickname, setNickname] = useState("");
     const [password, setPassword] = useState("");
@@ -18,29 +21,29 @@ const SignInForm = () => {
             password : password
         };
 
-
-        AxiosAPI.post(
-            '/users/signin/', {
-                nickname : nickname,
-                password : password
-            }
-        ).then((res)=>{
-            // console.log(res);
-            setCookie('refresh-token', res.data.refresh);
-            setCookie('access-token', res.data.access);
-            setCookie('nickname', nickname);
-            
-            window.location.replace("http://localhost:3000/main");
-        }).catch((error)=> {
-            console.log(error);
-            alert("아이디 또는 비밀번호가 일치하지 않습니다.");
-            setNickname("");
-            setPassword("");
+        dispatch(login(body)).then(res => {
+            console.log("🟢 LOGIN SUCCESS");
+            dispatch(setIsLogin(true));
+            setCookie("refresh-token", res.payload.data.refresh);
+            setCookie("access-token", res.payload.data.access);
+            // dispatch(setAccessToken(`JWT ${res.payload.data.refresh}`));
+            console.log(store);
+            navigate("/main");
+        }).catch(err => {
+            console.log(err);
+            console.log("🔴 LOGIN ERROR CODE : " + err.response.status);
+            dispatch(setIsLogin(false));
+            alert("아이디 또는 비밀번호를 올바르게 입력하세요.");
         });
-    }
 
+    };
+
+    const on = () => {
+        console.log(store);
+    }
     return (
         <Container className='signin-content'>
+            <button onClick={on}>확인</button>
             <h1>로그인</h1>
             <form onSubmit={onSubmit}>
                 {/* 아이디 */}

@@ -7,20 +7,24 @@ import { getCookie } from 'utils/Cookie';
 import noAlertImg from 'assets/image/bell-01.png';
 import alertImg from 'assets/image/bell-02.png';
 import user from 'assets/image/user.png';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 
-const Header = ({isLogin}) => {
+const Header = () => {
 
-    const [username, setUsername] = useState("");
-
-    useEffect(()=>{
-        setUsername(getCookie("nickname")); // 지금은 nickname
-    }, [username]);
-
-
+    const authStore = useSelector(store => store.auth);
+    const groupStore = useSelector(store => store.group);
+    
+    const a = () => {
+        console.log(authStore);
+    }
+    const g = () => {
+        console.log(groupStore);
+    }
     return (
         <Container>
-            <Logo href={isLogin === true ? `/main` : `/`}>
+            <Logo href={authStore.isLogin === true ? `/main` : `/`}>
                 <LogoImg
                     src={logo}
                     alt='logo'
@@ -28,9 +32,11 @@ const Header = ({isLogin}) => {
                 <LogoTitle>TRIP TIP</LogoTitle>
             </Logo>
             <Element>
-                <>      
+                <>     
+                <button onClick={a}>사용자 스토어</button>
+                <button onClick={g}>그룹 스토어</button> 
                     {/* 로그인되어있으면 프로필, 알림 이미지 */}
-                    {isLogin === true ?
+                    {authStore.isLogin === true ?
                         <>
                             <LinkImg to='/alert'>
                                 <img src={noAlertImg}/>

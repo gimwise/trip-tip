@@ -4,13 +4,30 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { Provider } from 'react-redux';
-import store from 'store/config';
+import { applyMiddleware, createStore, compose } from "redux";
+import promiseMiddleware from "redux-promise";
+import ReduxThunk from "redux-thunk";
+import persistedReducer from 'store';
+import { persistStore } from 'redux-persist';	
+import { PersistGate } from 'redux-persist/integration/react';	
+import { CookiesProvider } from 'react-cookie';
 
+const store = createStore(persistedReducer, compose(
+  applyMiddleware(promiseMiddleware, ReduxThunk),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+)
+)
+
+const persistor = persistStore(store);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
-    <App />
+    <PersistGate persistor={persistor}>
+      <CookiesProvider>
+        <App />
+      </CookiesProvider>
+    </PersistGate>
   </Provider>
 );
 

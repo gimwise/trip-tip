@@ -1,5 +1,5 @@
 import axios, { Axios } from "axios";
-import { getCookie } from "utils/Cookie";
+import { getCookie, setCookie } from "utils/Cookie";
 
 // axios.defaults.withCredentials = true;
 
@@ -10,8 +10,6 @@ const AxiosAPI = axios.create({
         'Content-Type': 'application/json',
     },
 })
-
-AxiosAPI.defaults.withCredentials = true;
 
 export default AxiosAPI;
 

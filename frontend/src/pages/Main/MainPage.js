@@ -1,24 +1,28 @@
-import React, {useState} from 'react';
-import { NavLink } from 'react-router-dom';
-import AxiosAPI from 'apis/AxiosAPI';
+import React, {useEffect} from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import MainPageLogo from 'assets/image/main-page-logo.png'
-import boy1 from 'assets/image/boy1.png'
-import boy2 from 'assets/image/boy1.png'
-import girl1 from 'assets/image/girl1.png'
-import girl2 from 'assets/image/girl2.png'
-import GroupListPage from 'pages/Group/GroupListPage';
+// import GroupListPage from 'pages/Group/GroupListPage';
+import { useSelector } from 'react-redux';
 
-const Main = ({isLogin}) => {
+const Main = () => {
+    const authStore = useSelector(store => store.auth);
+    const navigate = useNavigate();
 
-    if(isLogin === true){
-
-    }else{
-        window.location.replace("http://localhost:3000/signin");
+    useEffect(()=>{
+        if(authStore.isLogin === true){
+            
+        }
+        else{
+            navigate("/signin");
+        }
+    }, []);
+    const c = () => {
+        console.log(authStore);
     }
-
     return (
         <Container>
+            <button onClick={c}>확인</button>
             <div className='top-content'>
                 <div className='right'>
                     <p>     
