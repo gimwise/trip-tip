@@ -60,22 +60,7 @@ const SignupForm = () => {
                 alert("정확히 정보를 입력하세요.");
             }
         })
-    
 
-        // AxiosAPI.post(
-        //     '/users/signup/',
-        //     users
-        // ).then((res)=>{
-        //     console.log(res);
-        //     window.location.replace("http://localhost:3000/signin");
-        // }).catch((error)=> {
-        //     console.log(error);
-        //     if(error.response.data.nickname[0] === 'user with this nickname already exists.'){
-        //         alert("이미 사용중인 아이디입니다.");
-        //     }else{
-        //         alert("정확히 정보를 입력하세요.");
-        //     }
-        // });
     };
 
     return (
