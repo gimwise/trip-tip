@@ -28,6 +28,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
         return attrs
 
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['nickname', 'username', 'profile_img']
+
 class RefreshTokenSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 

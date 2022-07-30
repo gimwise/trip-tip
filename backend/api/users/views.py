@@ -4,10 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.generics import ListAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from users.models import CustomUser
 from .serializers import (
     CustomUserSerializer,
     RefreshTokenSerializer,
+    UserListSerializer,
 )
 
 class CustomUserView(APIView):
@@ -27,6 +30,12 @@ class CustomUserView(APIView):
             )
         return Response(reg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class UserListView(ListAPIView):
+    permission_classes = [ IsAuthenticated ]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserListSerializer
+
+
 class SignInUserView(APIView):
     permission_classes = [ AllowAny ]
 

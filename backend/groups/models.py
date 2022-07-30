@@ -26,9 +26,9 @@ class Group(models.Model):
     group_name = models.CharField(max_length=45, verbose_name="group_name", default="group")
     code = models.CharField(
         max_length=45,
-        # unique=True,
+        unique=True,
         editable=False,
-        default=generate_random_slug_code(),
+        default=generate_random_slug_code,
         verbose_name="code",
     )
     leader = models.ForeignKey(CustomUser, related_name='leader_user', on_delete=models.CASCADE, null=True, db_column='leader')

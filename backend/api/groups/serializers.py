@@ -6,17 +6,10 @@ from groups.models import *
 
 CustomUser = get_user_model()
 
-# user
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ('username',)
-
 # group
 class GroupListSerializer(serializers.ModelSerializer):
     leader_nick = serializers.CharField(max_length=45)
     member = serializers.ListField(child=serializers.CharField())
-    code = serializers.CharField(default=generate_random_slug_code())
     class Meta:
         model = Group
         fields = ('leader_nick', 'group_name', 'group_id', 'code', 'member')
@@ -33,7 +26,6 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
-
 
 # member
 class MemberSerializer(serializers.ModelSerializer):
