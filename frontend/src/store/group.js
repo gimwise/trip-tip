@@ -1,10 +1,13 @@
 import { request } from "apis/request";
 import { getCookie } from "utils/Cookie";
 import produce from "immer";
+import axios from "axios";
 
 const GETALLGROUPS = "GETALLGROUPS";
 const MAKEGROUP = "MAKEGROUP";
+const GETGROUPBYID = "GETGROUPBYID";
 
+const DOMAIN = "http://localhost:8000/api";
 const GROUPS_URL = "/groups/";
 
 const author = {
@@ -16,6 +19,15 @@ export const getAllGroups = ()=>{
 
     return {
         type : GETALLGROUPS,
+        payload : data,
+    }
+}
+
+export const getGroupById = (req) => {
+    const data = request("get", GROUPS_URL + req, "", author);
+
+    return {
+        type : GETGROUPBYID,
         payload : data,
     }
 }
@@ -40,7 +52,9 @@ const group = (state = initialState, action) => {
                 draft.groups = action.payload.data;
                 break;
             case MAKEGROUP :
-                console.log(action);
+                // console.log(action);
+                break;
+            case GETGROUPBYID :
                 break;
             default :
                 break;

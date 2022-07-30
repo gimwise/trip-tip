@@ -13,6 +13,7 @@ import AlertPage from 'pages/Main/AlertPage';
 import NotFound from 'pages/NotFound';
 import MyPage from 'pages/Auth/MyPage';
 import GroupListPage from 'pages/Group/GroupListPage';
+import GroupInfoPage from 'pages/Group/GroupInfoPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshToken } from 'store/auth';
 import { getCookie, removeCookie, setCookie } from 'utils/Cookie';
@@ -65,10 +66,11 @@ function App() {
           <Route path="/signup" element={<RegisterPage/>} />
           <Route path="/alert" element={<AlertPage/>}/>
           <Route path="/mypage" element={<MyPage/>}/>
-          <Route path="/group-list" element={<GroupListPage/>}/>
-          <Route path="/group" element={<CreateGroupPage/>} />
+          <Route path="/group/:group_id" element={<GroupInfoPage/>}/>
+          <Route path="/group/list" element={<GroupListPage/>}/>
+          <Route path="/group/new" element={<CreateGroupPage/>} />
           <Route path="/calculate" element={<CalculatePage/>} />
-          <Route path="/code" element={<InputCodePage/>} />
+          <Route path="/group/code" element={<InputCodePage/>} />
           <Route path="/clear" element={<ClearPage/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

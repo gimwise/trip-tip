@@ -34,15 +34,15 @@ const Main = () => {
 
             <div className='bottom-content'>
                 <div className='btns'>
-                    <GroupBtn to="/group-list">그룹 리스트</GroupBtn>
-                    <GroupBtn to="/group">그룹 생성</GroupBtn>
-                    <GroupBtn to="/code">그룹 참여</GroupBtn>
+                    <GroupBtn to="/group/list">그룹 리스트</GroupBtn>
+                    <GroupBtn to="/group/new">그룹 생성</GroupBtn>
+                    <GroupBtn to="/group/code">그룹 참여</GroupBtn>
                 </div>
 
                 <div className='logs'>
                     <h2>최근 활동</h2>
                     <div className='boxs'>
-                        <div className='box'>
+                        {/* <div className='box'>
                             <h3>멋사 MT</h3>
                             <p>
                                 참여 인원
@@ -59,7 +59,7 @@ const Main = () => {
                             <p>
                                 참여 인원
                             </p>
-                        </div>
+                        </div> */}
                     </div>
                     
                 </div>

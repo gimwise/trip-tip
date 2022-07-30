@@ -12,7 +12,8 @@ const GroupList = () => {
 
     useEffect(()=>{
         dispatch(getAllGroups()).then(res=>{
-            console.log(res);
+            console.log(res.payload.data);
+            setList(res.payload.data);
         })
     }, []);
 
@@ -20,7 +21,7 @@ const GroupList = () => {
 
     return (
         <div>
-            {list.map((v, i)=> <Group key={i} name={v.group_name} code={v.code} leader={v.leader_nick} member={v.member} />)}
+            {list.map((v, i)=> <Group key={v.group_id} name={v.group_name} code={v.code} leader={v.leader_nick} member={v.member} id={v.group_id} />)}
         </div>
     );
 };
