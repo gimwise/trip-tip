@@ -137,8 +137,10 @@ class DeleteGroupView(): # 정산이 완료된 멤버에 한해서 탈퇴 가능
 class CreateMeetingView(APIView): # 이미 존재하는 날짜에 대한 예외처리는 Serializer에서 관리
     permission_classes = [IsAuthenticated, GroupMemberPermission]
 
-    def get(self, request, pk, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
-        data = {"group_id" : pk}
+    def post(self, request, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
+        group_id = kwargs.pop('pk', False)
+        
+        data = {"group_id" : group_id, "create_dt": request.data['date']}
         serializer = CreateMeetingSerializer(data=data)  
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -157,9 +159,11 @@ class UpdateMeetingView(UpdateAPIView):
     serializer_class = UpdateMeetingSerializer
 
     def update(self, request, *args, **kwargs): # PUT
+        group_id = kwargs.pop('pk', False)
         meeting_id = kwargs.pop('meeting_id', False)
+
         instance = Meeting.objects.get(meeting_id=meeting_id)
-        data = {'create_dt': request.data['date']}
+        data = {'group_id': group_id,'create_dt': request.data['date']}
 
         serializer = self.get_serializer(instance, data=data)
         serializer.is_valid(raise_exception=True)

@@ -15,4 +15,6 @@ urlpatterns = [
     path('<int:pk>/meetings/<int:meeting_id>/update/', UpdateMeetingView.as_view(), name="meeting-update"),
     # path('<int:pk>/meetings/<int:meeting_id>/delete/', DeleteMeetingView.as_view(), name="meeting-delete"),
     # path('<int:pk>/meetings/<int:meeting_id>/completion/', CompletionMeetingView.as_view(), name="group-completion"),
+
+
 ]

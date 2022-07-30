@@ -35,18 +35,19 @@ class MemberSerializer(serializers.ModelSerializer):
 
 # meeting
 class CreateMeetingSerializer(serializers.ModelSerializer):
-    create_dt = serializers.DateField(default=timezone.now, format='%Y-%m-%d')
+    create_dt = serializers.DateField(format='%Y-%m-%d')
     class Meta:
         model = Meeting
         fields = '__all__'
 
     def validate(self, attrs):
-        now = timezone.now().__format__('%Y-%m-%d')
-
+        now = attrs['create_dt']
+        
         existing_meeting = Meeting.objects.filter(group_id=attrs['group_id'].group_id)
         if existing_meeting:
-            instance = CreateMeetingSerializer(existing_meeting, many=True)
-            if now == loads(dumps(instance.data[-1]))['create_dt']:
+            instance = ListMeetingSerializer(existing_meeting, many=True)
+            inst_list = loads(dumps(instance.data))
+            if next((item for item in inst_list if item['create_dt'] == str(now)), None):
                 raise serializers.ValidationError(f"{now} 날짜의 미팅이 이미 존재합니다.")
         return attrs
 
@@ -60,7 +61,20 @@ class UpdateMeetingSerializer(serializers.ModelSerializer):
     create_dt = serializers.DateField(format='%Y-%m-%d')
     class Meta:
         model = Meeting
-        fields = ['create_dt']
+        fields = ['group_id', 'create_dt']
+
+    def validate(self, attrs):
+        new = attrs['create_dt']
+
+        existing_meeting = Meeting.objects.filter(group_id=attrs['group_id'].group_id)
+        if existing_meeting:
+            instance = ListMeetingSerializer(existing_meeting, many=True)
+            inst_list = loads(dumps(instance.data))
+            if next((item for item in inst_list if item['create_dt'] == str(new)), None):
+                raise serializers.ValidationError(f"{new} 날짜의 미팅이 이미 존재합니다.")
+        return attrs
+
+
 
 # receipt
 class ReceiptSerializer(serializers.ModelSerializer):
