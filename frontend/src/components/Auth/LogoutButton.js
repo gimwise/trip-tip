@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import AxiosAPI from 'apis/AxiosAPI';
-import { getCookie } from 'utils/Cookie';
+import { getCookie, removeCookie } from 'utils/Cookie';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { logout } from 'store/auth';
@@ -18,6 +18,8 @@ const LogoutButton = () => {
 
         dispatch(logout(body)).then(res => {
             console.log("🟢 LOGOUT SUCCESS");
+            removeCookie("refresh-token");
+            removeCookie("access-token");
             navigate("/");
         }).catch(err=>{
             console.log("🔴 LOGINOUT FAILURE");

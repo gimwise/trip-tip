@@ -7,7 +7,7 @@ import StartPage from 'pages/Auth/StartPage';
 import MainPage from 'pages/Main/MainPage';
 import ClearPage from 'pages/Group/ClearPage';
 import CalculatePage from 'pages/Group/CalculatePage';
-import GroupPage from 'pages/Group/GroupPage';
+import CreateGroupPage from 'pages/Group/CreateGroupPage';
 import InputCodePage from 'pages/Group/InputCodePage.js';
 import AlertPage from 'pages/Main/AlertPage';
 import NotFound from 'pages/NotFound';
@@ -66,7 +66,7 @@ function App() {
           <Route path="/alert" element={<AlertPage/>}/>
           <Route path="/mypage" element={<MyPage/>}/>
           <Route path="/group-list" element={<GroupListPage/>}/>
-          <Route path="/group" element={<GroupPage/>} />
+          <Route path="/group" element={<CreateGroupPage/>} />
           <Route path="/calculate" element={<CalculatePage/>} />
           <Route path="/code" element={<InputCodePage/>} />
           <Route path="/clear" element={<ClearPage/>} />
