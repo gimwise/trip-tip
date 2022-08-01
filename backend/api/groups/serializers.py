@@ -1,6 +1,7 @@
 from json import loads, dumps
 
 from django.contrib.auth import get_user_model
+from django.forms import CharField
 from rest_framework import serializers
 from groups.models import *
 
@@ -73,8 +74,6 @@ class UpdateMeetingSerializer(serializers.ModelSerializer):
             if next((item for item in inst_list if item['create_dt'] == str(new)), None):
                 raise serializers.ValidationError(f"{new} 날짜의 미팅이 이미 존재합니다.")
         return attrs
-
-
 
 # receipt
 class ReceiptSerializer(serializers.ModelSerializer):

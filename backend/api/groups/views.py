@@ -5,7 +5,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView
+from rest_framework.generics import (
+    ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView, 
+)
 
 from users.models import CustomUser
 from groups.models import Group, Member
@@ -74,8 +76,8 @@ class DetailGroupView(RetrieveAPIView):
     
     def get(self, request, pk, *args, **kwargs):
         group = Group.objects.get(group_id=pk)
-        member = group.member_set.all().values('user_id__username') # 이런 식으로 하면 이슈가 발생할 수도 있음...
-        member_list = [d['user_id__username'] for d in member]
+        member_query = group.member_set.all().values('user_id__username') # 이런 식으로 하면 이슈가 발생할 수도 있음...
+        member_list = [d['user_id__username'] for d in member_query]
 
         meeting = group.meeting_set.all().values()
         meeting_serializer = ListMeetingSerializer(meeting, many=True)
@@ -149,8 +151,8 @@ class CreateMeetingView(APIView): # 이미 존재하는 날짜에 대한 예외�
 class DetailMeetingView(APIView): # 출력 format에 receipt 리스트 추가 예정!!!!!!!
     permission_classes = [IsAuthenticated, GroupMemberPermission]
 
-    def get(self, request, pk, meeting_id, *args, **kwargs):
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
+    def get(self, request, pk, m_pk, *args, **kwargs):
+        meeting = Meeting.objects.get(meeting_id=m_pk)
         meeting_json = ListMeetingSerializer(meeting)
         return Response(meeting_json.data)
 
@@ -160,7 +162,7 @@ class UpdateMeetingView(UpdateAPIView):
 
     def update(self, request, *args, **kwargs): # PUT
         group_id = kwargs.pop('pk', False)
-        meeting_id = kwargs.pop('meeting_id', False)
+        meeting_id = kwargs.pop('m_pk', False)
 
         instance = Meeting.objects.get(meeting_id=meeting_id)
         data = {'group_id': group_id,'create_dt': request.data['date']}
@@ -182,8 +184,62 @@ class CompletionMeetingView(APIView):
 # ======================================================================================== #
 # Receipt
 
+class CreateReceiptView(CreateAPIView): 
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
+    serializer_class = ParticipantSerializer
 
+    def get_serializer(self, *args, **kwargs): # 여러개 데이터 동시에 queryset 저장하기 위한 오버라이딩
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        return super(CreateReceiptView, self).get_serializer(*args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        # 필수 데이터 수집
+        group_id = kwargs.pop('pk', False)
+        meeting_id = kwargs.pop('m_pk', False)
+        user = request.user
+        participants = request.data['participants']
+        
+        # Receipt create
+        data = { 'paid_by': user.user_id, 'meeting_id': meeting_id, }
+        serializer = ReceiptSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # 2차 데이터 수집
+        receipt_id = serializer.data['receipt_id']
+
+        group = Group.objects.get(group_id=group_id)
+        member_query = group.member_set.all().values('user_id__username', 'user_id__user_id')
+        member_dict = {d['user_id__username'] : d['user_id__user_id'] for d in member_query}
+  
+        # Participant create
+        participant_list = []
+        for key, value in participants.items():
+            participant_list.append({
+            'receipt_id': receipt_id, 
+            'user_id': member_dict[key],
+            'money': value
+            })
+        serializer2 = self.get_serializer(data=participant_list, many=True)
+        serializer2.is_valid(raise_exception=True)
+        serializer2.save()
+
+        return Response({
+            "message": "정상적으로 영수증이 등록되었습니다!",
+            "paid_by": user.username,
+            "payment" : participants
+            },status=status.HTTP_200_OK
+        )
+    
+    
+        
+
+class ReceiptView(ListAPIView):
+    pass
+
+class DetailReceiptView(APIView):
+    pass
 
 # ======================================================================================== #
 # Participant
