@@ -1,5 +1,7 @@
+from ast import dump
 from json import loads, dumps
 from collections import OrderedDict
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -19,34 +21,57 @@ from .permissions import GroupLeaderPermission, GroupMemberPermission
 
 class CreateGroupView(CreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = MemberSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        return super(CreateGroupView, self).get_serializer(*args, **kwargs)
 
     def post(self, request):
-        user_id = request.user.user_id
-        request.data['leader'] = user_id
-        serializer = GroupSerializer(data=request.data)
-        if serializer.is_valid():
-            new_group = serializer.save()
+        # 1차 데이터 수집 및 수정
+        user = request.user
+        data = {'group_name': request.data['group_name'], 'leader': user.user_id}
 
-            # member tbl 등록
-            data = {
-                "user_id": user_id,
-                "group_id": new_group.group_id
-            }
-            member_serializer = MemberSerializer(data=data)
-            if member_serializer.is_valid():
-                member_serializer.save()
-            else:
-                Group.objects.delete(code=new_group.code)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Group Create
+        serializer = GroupSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        # 2차 데이터 가공
+        group_id = serializer.data['group_id']
+        data = [{
+            "user_id": user.user_id,
+            "group_id": group_id
+        }]
 
-            return Response(
-                {
-                    "group_name" : new_group.group_name,
-                    "code": new_group.code,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user_query = CustomUser.objects.filter(nickname__in=request.data['member']).values('nickname', 'user_id', 'username')
+        user_dict = {d['nickname'] : d['user_id'] for d in user_query}
+        user_list = [l['username'] for l in user_query]
+
+        for value in request.data['member']:
+            data.append({
+                "user_id": user_dict[value],
+                "group_id": group_id
+            })
+
+        # Member Create  
+        member_serializer = self.get_serializer(data=data, many=True)
+        if member_serializer.is_valid():
+            member_serializer.save()
+        else:
+            Group.objects.delete(code=serializer.data['code'])
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {
+                "group_name" : request.data['group_name'],
+                "leader": user.username,
+                "code": serializer.data['code'],
+                "invited_member": user_list,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 class GroupView(ListAPIView):
     permission_classes = [IsAuthenticated, ]
@@ -188,7 +213,7 @@ class CreateReceiptView(CreateAPIView):
     permission_classes = [IsAuthenticated, GroupMemberPermission]
     serializer_class = ParticipantSerializer
 
-    def get_serializer(self, *args, **kwargs): # 여러개 데이터 동시에 queryset 저장하기 위한 오버라이딩
+    def get_serializer(self, *args, **kwargs):
         if isinstance(kwargs.get('data', {}), list):
             kwargs['many'] = True
         return super(CreateReceiptView, self).get_serializer(*args, **kwargs)
