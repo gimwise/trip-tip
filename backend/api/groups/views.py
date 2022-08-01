@@ -199,9 +199,10 @@ class CreateReceiptView(CreateAPIView):
         meeting_id = kwargs.pop('m_pk', False)
         user = request.user
         participants = request.data['participants']
+        receipt_name = request.data['receipt_name']
         
         # Receipt create
-        data = { 'paid_by': user.user_id, 'meeting_id': meeting_id, }
+        data = { 'receipt_name':receipt_name ,'paid_by': user.user_id, 'meeting_id': meeting_id, }
         serializer = ReceiptSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -227,6 +228,7 @@ class CreateReceiptView(CreateAPIView):
 
         return Response({
             "message": "정상적으로 영수증이 등록되었습니다!",
+            "receipt_name": receipt_name,
             "paid_by": user.username,
             "payment" : participants
             },status=status.HTTP_200_OK
