@@ -259,11 +259,26 @@ class CreateReceiptView(CreateAPIView):
             },status=status.HTTP_200_OK
         )
     
-    
-        
-
 class ReceiptView(ListAPIView):
-    pass
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
+    
+    def get(self, request, *args, **kwargs):
+        meeting_id = kwargs.pop('m_pk', False)
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        receipts = meeting.receipt_set.all()
+
+        data = []
+        for receipt in receipts:
+            participants = receipt.participant_set.all().values_list('user_id__username', flat=True)
+            data.append({
+                'receipt_name': receipt.receipt_name,
+                'total': receipt.total,
+                'paid_by_name': receipt.paid_by.username,
+                'participants': participants
+            })
+        serializer = ListReceiptSerializer(instance=data, many=True)
+
+        return Response(serializer.data)
 
 class DetailReceiptView(APIView):
     pass
