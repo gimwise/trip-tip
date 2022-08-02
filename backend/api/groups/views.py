@@ -287,7 +287,7 @@ class ReceiptView(ListAPIView):
         serializer = ListReceiptSerializer(instance=data, many=True)
 
         return Response(serializer.data)
-
+        
 class DetailReceiptView(APIView):
     pass
 
