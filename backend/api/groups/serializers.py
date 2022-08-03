@@ -81,9 +81,16 @@ class ReceiptSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = '__all__'
 
+class ListReceiptSerializer(serializers.ModelSerializer):
+    paid_by_name = serializers.CharField()
+    participants = serializers.ListField()
+    class Meta:
+        model = Receipt
+        fields = ['receipt_name', 'total', 'paid_by_name', 'participants']
+
 # participant
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
-        fields = '__all__'
+        fields = ['username']
 

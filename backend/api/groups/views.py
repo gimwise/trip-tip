@@ -2,6 +2,7 @@ from ast import dump
 from json import loads, dumps
 from collections import OrderedDict
 from django.db.models import Q
+from django.forms.models import model_to_dict
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -14,12 +15,12 @@ from rest_framework.generics import (
 from users.models import CustomUser
 from groups.models import Group, Member
 from .serializers import *
-from .permissions import GroupLeaderPermission, GroupMemberPermission
+from config.permissions import GroupMemberPermission
 
 # ======================================================================================== #
 # Group (Update, Delete 만들어야 됨)
 
-class CreateGroupView(CreateAPIView):
+class CreateGroupView(CreateAPIView): # Total 추가할 것
     permission_classes = [IsAuthenticated]
     serializer_class = MemberSerializer
 
@@ -46,8 +47,10 @@ class CreateGroupView(CreateAPIView):
         }]
 
         user_query = CustomUser.objects.filter(nickname__in=request.data['member']).values('nickname', 'user_id', 'username')
-        user_dict = {d['nickname'] : d['user_id'] for d in user_query}
-        user_list = [l['username'] for l in user_query]
+        user_dict, user_list = {}, []
+        for v in user_query:
+            user_dict[v['nickname']] = v['user_id']
+            user_list.append(v['username'])
 
         for value in request.data['member']:
             data.append({
@@ -78,7 +81,7 @@ class GroupView(ListAPIView):
 
     def get(self, request):
         user = request.user
-        member_query = Member.objects.filter(user_id=user).values('group_id__group_id')    
+        member_query = Member.objects.filter(user_id=user).values('group_id__group_id')  
         data = []
 
         for q in member_query:
@@ -97,7 +100,7 @@ class GroupView(ListAPIView):
         return Response(serializer.data)
 
 class DetailGroupView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated, GroupLeaderPermission]
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
     
     def get(self, request, pk, *args, **kwargs):
         group = Group.objects.get(group_id=pk)
@@ -202,7 +205,7 @@ class DeleteMeetingView(APIView):
     pass
 
 class CompletionMeetingView(APIView):
-    permission_classes = [IsAuthenticated, GroupLeaderPermission]
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
     def post(self, request):
         pass
 
@@ -223,11 +226,15 @@ class CreateReceiptView(CreateAPIView):
         group_id = kwargs.pop('pk', False)
         meeting_id = kwargs.pop('m_pk', False)
         user = request.user
-        participants = request.data['participants']
         receipt_name = request.data['receipt_name']
-        
+        participants = request.data['participants']
+
+        total = 0
+        for cost in participants.values():
+            total += cost
+       
         # Receipt create
-        data = { 'receipt_name':receipt_name ,'paid_by': user.user_id, 'meeting_id': meeting_id, }
+        data = { 'receipt_name':receipt_name,'total':total, 'paid_by': user.user_id, 'meeting_id': meeting_id, }
         serializer = ReceiptSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -255,15 +262,31 @@ class CreateReceiptView(CreateAPIView):
             "message": "정상적으로 영수증이 등록되었습니다!",
             "receipt_name": receipt_name,
             "paid_by": user.username,
+            "total": total,
             "payment" : participants
             },status=status.HTTP_200_OK
         )
     
-    
-        
-
 class ReceiptView(ListAPIView):
-    pass
+    permission_classes = [IsAuthenticated, GroupMemberPermission]
+    
+    def get(self, request, *args, **kwargs):
+        meeting_id = kwargs.pop('m_pk', False)
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        receipts = meeting.receipt_set.all()
+
+        data = []
+        for receipt in receipts:
+            participants = receipt.participant_set.all().values_list('user_id__username', flat=True)
+            data.append({
+                'receipt_name': receipt.receipt_name,
+                'total': receipt.total,
+                'paid_by_name': receipt.paid_by.username,
+                'participants': participants
+            })
+        serializer = ListReceiptSerializer(instance=data, many=True)
+
+        return Response(serializer.data)
 
 class DetailReceiptView(APIView):
     pass
