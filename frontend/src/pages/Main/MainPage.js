@@ -9,14 +9,14 @@ const Main = () => {
     const authStore = useSelector(store => store.auth);
     const navigate = useNavigate();
 
-    useEffect(()=>{
-        if(authStore.isLogin === true){
+    // useEffect(()=>{
+    //     if(authStore.isLogin === true){
             
-        }
-        else{
-            navigate("/signin");
-        }
-    }, []);
+    //     }
+    //     else{
+    //         navigate("/signin");
+    //     }
+    // }, []);
     const c = () => {
         console.log(authStore);
     }
@@ -28,7 +28,7 @@ const Main = () => {
                     <p>     
                         안녕하세요!<br/>TRIP TIP이 여러분의 총무가 되어드립니다.
                     </p>
-                    <img src={MainPageLogo} />
+                    <img src={MainPageLogo} alt="Logo" />
                 </div>
             </div>
 

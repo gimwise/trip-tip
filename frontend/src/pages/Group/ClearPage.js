@@ -6,7 +6,7 @@ const ClearPage = () => {
     return (
         <Container>
             <div>
-                <img src={clear}/>
+                <img src={clear} alt="clear"/>
                 <h1>정산 완료!</h1>
                 <Check to="/main">확인</Check>
             </div>

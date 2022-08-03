@@ -13,7 +13,7 @@ const MyPage = () => {
                 <h3>프로필</h3>
                 <div className='profile'>
                     <div>
-                        <img src={girl1} />
+                        <img src={girl1} alt="girl" />
                     </div>
                     <div className='right'>
                         <div className='name'>이름</div>
