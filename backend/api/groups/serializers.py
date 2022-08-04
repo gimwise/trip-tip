@@ -36,7 +36,7 @@ class GroupMemberSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = '__all__'
+        exclude = ['group_id']
 
 class ListGroupSerializer(serializers.ModelSerializer):
     leader = serializers.StringRelatedField()
