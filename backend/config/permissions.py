@@ -24,8 +24,6 @@ class GroupMemberPermission(BasePermission):
 
             user = request.user
             member = user.member_set.all().values('group_id__group_id')
-            print(member)
-
             data = [m['group_id__group_id'] for m in member]
 
             if group_id in data:

@@ -38,7 +38,7 @@ class Group(models.Model):
 
 class Member(models.Model):
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, db_column='user_id',)
-    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id',)
+    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id', related_name='group_in')
 
 class Meeting(models.Model):
     meeting_id = models.BigAutoField(
@@ -48,7 +48,7 @@ class Meeting(models.Model):
     )
     create_dt = models.DateField(default=timezone.now, blank=True, null=True)
     is_clear = models.BooleanField(default=False)
-    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id')
+    group_id = models.ForeignKey(Group, on_delete=models.CASCADE, db_column='group_id',)
 
 
 class Receipt(models.Model):
@@ -63,9 +63,9 @@ class Receipt(models.Model):
     meeting_id = models.ForeignKey(Meeting, on_delete=models.CASCADE, db_column='meeting_id')
     paid_by = models.ForeignKey(
         CustomUser,
-        related_name='manager',
         on_delete=models.CASCADE, 
         db_column='paid_by',
+        related_name='manager'
     )
 
     def __str__(self):
@@ -79,7 +79,7 @@ class Participant(models.Model):
     )
     money = models.IntegerField(default=0)
     is_clear = models.BooleanField(default=False)
-    receipt_id = models.ForeignKey(Receipt, on_delete=models.CASCADE, db_column='receipt_id')
+    receipt_id = models.ForeignKey(Receipt, on_delete=models.CASCADE, db_column='receipt_id', related_name='participant')
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, db_column='user_id')
     
 

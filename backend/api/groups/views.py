@@ -1,12 +1,15 @@
 from ast import dump
 from json import loads, dumps
 from collections import OrderedDict
+from urllib import response
+from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView, 
@@ -15,6 +18,7 @@ from rest_framework.generics import (
 from users.models import CustomUser
 from groups.models import Group, Member
 from .serializers import *
+from api.users.serializers import UserListSerializer
 from config.permissions import GroupMemberPermission
 
 # ======================================================================================== #
@@ -22,104 +26,57 @@ from config.permissions import GroupMemberPermission
 
 class CreateGroupView(CreateAPIView): # Total 추가할 것
     permission_classes = [IsAuthenticated]
-    serializer_class = MemberSerializer
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
 
-    def get_serializer(self, *args, **kwargs):
-        if isinstance(kwargs.get('data', {}), list):
-            kwargs['many'] = True
-        return super(CreateGroupView, self).get_serializer(*args, **kwargs)
-
-    def post(self, request):
-        # 1차 데이터 수집 및 수정
-        user = request.user
-        data = {'group_name': request.data['group_name'], 'leader': user.user_id}
-
-        # Group Create
-        serializer = GroupSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    def create(self, request, *args, **kwargs):
+        try:
+            request.data['leader'] = request.user.user_id
+            member = request.data.pop('member')
+            member.append(request.user.nickname)
+        except KeyError:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 2차 데이터 가공
-        group_id = serializer.data['group_id']
-        data = [{
-            "user_id": user.user_id,
-            "group_id": group_id
-        }]
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        user_query = CustomUser.objects.filter(nickname__in=request.data['member']).values('nickname', 'user_id', 'username')
-        user_dict, user_list = {}, []
-        for v in user_query:
-            user_dict[v['nickname']] = v['user_id']
-            user_list.append(v['username'])
+        with transaction.atomic():
+            instance = serializer.save()
+            id_list = CustomUser.objects.filter(nickname__in=member).values_list('user_id', flat=True)
+            for id in id_list:
+                s = GroupMemberSerializer(data={"user_id": id, "group_id": instance.group_id})
+                s.is_valid(raise_exception=True)
+                s.save()
 
-        for value in request.data['member']:
-            data.append({
-                "user_id": user_dict[value],
-                "group_id": group_id
-            })
-
-        # Member Create  
-        member_serializer = self.get_serializer(data=data, many=True)
-        if member_serializer.is_valid():
-            member_serializer.save()
-        else:
-            Group.objects.delete(code=serializer.data['code'])
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(
-            {
-                "group_name" : request.data['group_name'],
-                "leader": user.username,
-                "code": serializer.data['code'],
-                "invited_member": user_list,
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        headers = self.get_success_headers(serializer.data)
+        users = CustomUser.objects.filter(nickname__in=member).values('nickname', 'username', 'profile_img')
+        users_s = UserListSerializer(users, many=True)
+        return Response({
+                "group_info": {
+                    "group_name": instance.group_name,
+                    "code": instance.code,
+                    "leader": request.user.username,
+                },
+                "member_info": users_s.data, 
+            },status=status.HTTP_201_CREATED, headers=headers)
 
 class GroupView(ListAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
         user = request.user
-        member_query = Member.objects.filter(user_id=user).values('group_id__group_id')  
-        data = []
-
-        for q in member_query:
-            group = Group.objects.get(group_id=q['group_id__group_id'])
-            group_member_query = group.member_set.all().values('user_id__username')
-            group_member_list = [d['user_id__username'] for d in group_member_query]
-            
-            data.append({
-                'leader_nick': group.leader,
-                'group_id': group.group_id,
-                'group_name': group.group_name,
-                'code': group.code,
-                'member': group_member_list
-            })
-        serializer = GroupListSerializer(data, many=True)
+        member = Member.objects.filter(user_id=user)
+        groups = Group.objects.filter(group_id__in=member.values_list('group_id'))
+        serializer = ListGroupSerializer(groups, many=True)
         return Response(serializer.data)
 
 class DetailGroupView(RetrieveAPIView):
     permission_classes = [IsAuthenticated, GroupMemberPermission]
     
-    def get(self, request, pk, *args, **kwargs):
-        group = Group.objects.get(group_id=pk)
-        member_query = group.member_set.all().values('user_id__username') # 이런 식으로 하면 이슈가 발생할 수도 있음...
-        member_list = [d['user_id__username'] for d in member_query]
-
-        meeting = group.meeting_set.all().values()
-        meeting_serializer = ListMeetingSerializer(meeting, many=True)
-        meeting_json = loads(dumps(meeting_serializer.data))
-
-        data = {
-            'leader_nick': group.leader,
-            'group_id': group.group_id,
-            'group_name': group.group_name,
-            'code': group.code,
-            'member': member_list,
-            'meeting': meeting_json,
-        }
-        serializer = GroupMeetingListSerializer(data)
+    def get(self, request, *args, **kwargs):
+        group_id = kwargs.pop('pk', False)
+        group = Group.objects.get(group_id=group_id)
+        serializer = GroupMeetingListSerializer(group)
         return Response(serializer.data)
 
 class JoinGroupView(CreateAPIView):
@@ -164,10 +121,10 @@ class DeleteGroupView(): # 정산이 완료된 멤버에 한해서 탈퇴 가능
 # ======================================================================================== #
 # Meeting
 
-class CreateMeetingView(APIView): # 이미 존재하는 날짜에 대한 예외처리는 Serializer에서 관리
+class CreateMeetingView(APIView):
     permission_classes = [IsAuthenticated, GroupMemberPermission]
 
-    def post(self, request, *args, **kwargs): # pk == self.kwargs.get('pk') == group_id
+    def post(self, request, *args, **kwargs):
         group_id = kwargs.pop('pk', False)
         
         data = {"group_id" : group_id, "create_dt": request.data['date']}
@@ -214,85 +171,62 @@ class CompletionMeetingView(APIView):
 
 class CreateReceiptView(CreateAPIView): 
     permission_classes = [IsAuthenticated, GroupMemberPermission]
-    serializer_class = ParticipantSerializer
+    serializer_class = ReceiptSerializer
 
-    def get_serializer(self, *args, **kwargs):
-        if isinstance(kwargs.get('data', {}), list):
-            kwargs['many'] = True
-        return super(CreateReceiptView, self).get_serializer(*args, **kwargs)
+    # 지우지 마시오.
+    # def get_serializer(self, *args, **kwargs):
+    #     if isinstance(kwargs.get('data', {}), list):
+    #         kwargs['many'] = True
+    #     return super(CreateReceiptView, self).get_serializer(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        # 필수 데이터 수집
-        group_id = kwargs.pop('pk', False)
-        meeting_id = kwargs.pop('m_pk', False)
-        user = request.user
-        receipt_name = request.data['receipt_name']
-        participants = request.data['participants']
+    def create(self, request, *args, **kwargs):
+        try:
+            request.data['paid_by'] = request.user.user_id
+            request.data['meeting_id'] = kwargs.pop('m_pk', False)
 
-        total = 0
-        for cost in participants.values():
-            total += cost
-       
-        # Receipt create
-        data = { 'receipt_name':receipt_name,'total':total, 'paid_by': user.user_id, 'meeting_id': meeting_id, }
-        serializer = ReceiptSerializer(data=data)
+            participants = request.data.pop('participants')
+            total = 0
+            for v in participants.values():
+                total += v
+            request.data['total'] = total
+        except KeyError:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        # 2차 데이터 수집
-        receipt_id = serializer.data['receipt_id']
+        with transaction.atomic():
+            instance = serializer.save()
+            users = CustomUser.objects.filter(nickname__in=participants)
+            id_list = users.values_list('user_id', flat=True)
+            for id in id_list:
+                s = ParticipantSerializer(data={"user_id": id, "receipt_id": instance.receipt_id})
+                s.is_valid(raise_exception=True)
+                s.save()
 
-        group = Group.objects.get(group_id=group_id)
-        member_query = group.member_set.all().values('user_id__username', 'user_id__user_id')
-        member_dict = {d['user_id__username'] : d['user_id__user_id'] for d in member_query}
-  
-        # Participant create
-        participant_list = []
-        for key, value in participants.items():
-            participant_list.append({
-            'receipt_id': receipt_id, 
-            'user_id': member_dict[key],
-            'money': value
-            })
-        serializer2 = self.get_serializer(data=participant_list, many=True)
-        serializer2.is_valid(raise_exception=True)
-        serializer2.save()
-
+        headers = self.get_success_headers(serializer.data)
         return Response({
-            "message": "정상적으로 영수증이 등록되었습니다!",
-            "receipt_name": receipt_name,
-            "paid_by": user.username,
-            "total": total,
-            "payment" : participants
-            },status=status.HTTP_200_OK
-        )
-    
-class ReceiptView(ListAPIView):
+                "receipt_info": serializer.data,
+                "payment": users.values_list('nickname', 'username'), 
+            },status=status.HTTP_201_CREATED, headers=headers)
+
+class ListReceiptView(GenericAPIView):
     permission_classes = [IsAuthenticated, GroupMemberPermission]
-    
+    queryset = Receipt.objects.all()
+
     def get(self, request, *args, **kwargs):
         meeting_id = kwargs.pop('m_pk', False)
         meeting = Meeting.objects.get(meeting_id=meeting_id)
         receipts = meeting.receipt_set.all()
-
-        data = []
-        for receipt in receipts:
-            participants = receipt.participant_set.all().values_list('user_id__username', flat=True)
-            data.append({
-                'receipt_name': receipt.receipt_name,
-                'total': receipt.total,
-                'paid_by_name': receipt.paid_by.username,
-                'participants': participants
-            })
-        serializer = ListReceiptSerializer(instance=data, many=True)
-
-        return Response(serializer.data)
         
-class DetailReceiptView(APIView):
+        serializer = ListReceiptSerializer(instance=receipts, many=True)
+        return Response(serializer.data)
+
+class DetailReceipt(ListAPIView):
     pass
 
 # ======================================================================================== #
 # Participant
 
-
-
+class ListParticipant(ListAPIView):
+    pass

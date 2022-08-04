@@ -16,8 +16,7 @@ urlpatterns = [
     # path('<int:pk>/meetings/<int:m_pk>/delete/', DeleteMeetingView.as_view(), name="meeting-delete"),
     # path('<int:pk>/meetings/<int:m_pk>/completion/', CompletionMeetingView.as_view(), name="group-completion"),
 
-    path('<int:pk>/meetings/<int:m_pk>/receipts/', ReceiptView.as_view(), name="receipt-list"),
-    path('<int:pk>/meetings/<int:m_pk>/receipts/<int:r_pk>/', DetailReceiptView.as_view(), name="receipt-detail"),
+    path('<int:pk>/meetings/<int:m_pk>/receipts/', ListReceiptView.as_view(), name="receipt-list"),
     path('<int:pk>/meetings/<int:m_pk>/receipts/create/', CreateReceiptView.as_view(), name="receipt-create"),
-    
+    # path('<int:pk>/meetings/<int:m_pk>/receipts/<int:r_pk>/', DetailReceiptView.as_view(), name="receipt-detail"),   
 ]
