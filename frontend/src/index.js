@@ -12,11 +12,21 @@ import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';	
 import { CookiesProvider } from 'react-cookie';
 
+import { MuiThemeProvider, createTheme } from '@material-ui/core';
+import { ThemeProvider } from 'styled-components';
+import cssTheme from 'styles/cssTheme';
+
 const store = createStore(persistedReducer, compose(
   applyMiddleware(promiseMiddleware, ReduxThunk),
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
   )
 )
+
+const fontTheme = createTheme({
+  typography : {
+    fontFamily : ('Noto Sans KR')
+  }
+})
 
 const persistor = persistStore(store);
 
@@ -24,9 +34,13 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <CookiesProvider>
-        <App />
-      </CookiesProvider>
+      <ThemeProvider theme={cssTheme}>
+        <MuiThemeProvider theme={fontTheme}>
+          <CookiesProvider>
+            <App />
+          </CookiesProvider>
+        </MuiThemeProvider>
+      </ThemeProvider>
     </PersistGate>
   </Provider>
 );
