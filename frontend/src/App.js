@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from 'components/Header/Header';
 import LoginPage from 'pages/Auth/LoginPage';
@@ -17,7 +17,9 @@ import GroupInfoPage from 'pages/Group/GroupInfoPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshToken } from 'store/auth';
 import { getCookie, removeCookie, setCookie } from 'utils/Cookie';
-import { useCookies } from 'react-cookie';
+
+import { AppContainer } from 'styles/GlobalStyle';
+
 
 function App() {
 
@@ -54,7 +56,7 @@ function App() {
 
 
   return (
-    <div className='App'>
+    <AppContainer>
       <BrowserRouter>
         
         <Header />
@@ -66,16 +68,19 @@ function App() {
           <Route path="/signup" element={<RegisterPage/>} />
           <Route path="/alert" element={<AlertPage/>}/>
           <Route path="/mypage" element={<MyPage/>}/>
+
           <Route path="/group/:group_id" element={<GroupInfoPage/>}/>
           <Route path="/group/list" element={<GroupListPage/>}/>
           <Route path="/group/new" element={<CreateGroupPage/>} />
+
           <Route path="/calculate" element={<CalculatePage/>} />
           <Route path="/group/code" element={<InputCodePage/>} />
           <Route path="/clear" element={<ClearPage/>} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>    
-    </div>
+    </AppContainer>
   )
 
 }
