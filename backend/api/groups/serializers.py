@@ -94,7 +94,7 @@ class UpdateMeetingSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
-        fields = '__all__'
+        fields = ['receipt_name', 'total', 'paid_by', 'is_clear']
 
 class ListReceiptSerializer(serializers.ModelSerializer):
     paid_by = serializers.StringRelatedField()

@@ -206,7 +206,10 @@ class CreateReceiptView(CreateAPIView):
 
         headers = self.get_success_headers(serializer.data)
         return Response({
-                "receipt_info": serializer.data,
+                "receipt_info": {
+                    "receipt_name": instance.receipt_name, "total": total,
+                    "paid_by": [request.user.username, request.user.nickname], "is_clear": instance.is_clear
+                },
                 "payment": users.values_list('nickname', 'username'), 
             },status=status.HTTP_201_CREATED, headers=headers)
 
