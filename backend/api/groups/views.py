@@ -132,15 +132,23 @@ class CreateMeetingView(APIView):
         serializer = CreateMeetingSerializer(data=data)  
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DetailMeetingView(APIView): # 출력 format에 receipt 리스트 추가 예정!!!!!!!
     permission_classes = [IsAuthenticated, GroupMemberPermission]
 
-    def get(self, request, pk, m_pk, *args, **kwargs):
-        meeting = Meeting.objects.get(meeting_id=m_pk)
-        meeting_json = ListMeetingSerializer(meeting)
-        return Response(meeting_json.data)
+    def get(self, request, *args, **kwargs):
+        meeting_id = kwargs.pop('m_pk', False)
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        serializer_meeting = MeetingSerializer(meeting)
+
+        receipts = meeting.receipt_set.all()
+        serializer_receipt = ListReceiptSerializer(instance=receipts, many=True)
+
+        return Response({
+            "meeting_info": serializer_meeting.data,
+            "receipts_info": serializer_receipt.data
+        })
 
 class UpdateMeetingView(UpdateAPIView):
     permission_classes = [IsAuthenticated, GroupMemberPermission]
@@ -207,21 +215,15 @@ class CreateReceiptView(CreateAPIView):
 
         headers = self.get_success_headers(serializer.data)
         return Response({
-                "receipt_info": serializer.data,
-                "payment": users.values_list('nickname', 'username'), 
+                "receipt_info": {
+                    "receipt_name": instance.receipt_name, "total": total,
+                    "paid_by": {
+                        "username": request.user.username, "nickname": request.user.nickname,
+                        "profile_img": request.user.profile_img or None
+                    }, "is_clear": instance.is_clear
+                },
+                "payment": users.values('username', 'nickname', 'profile_img'), 
             },status=status.HTTP_201_CREATED, headers=headers)
-
-class ListReceiptView(GenericAPIView):
-    permission_classes = [IsAuthenticated, GroupMemberPermission]
-    queryset = Receipt.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        meeting_id = kwargs.pop('m_pk', False)
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
-        receipts = meeting.receipt_set.all()
-        
-        serializer = ListReceiptSerializer(instance=receipts, many=True)
-        return Response(serializer.data)
 
 class DetailReceipt(ListAPIView):
     pass
