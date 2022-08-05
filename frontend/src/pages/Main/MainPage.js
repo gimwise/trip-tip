@@ -2,27 +2,23 @@ import React, {useEffect} from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import MainPageLogo from 'assets/image/main-page-logo.png'
-// import GroupListPage from 'pages/Group/GroupListPage';
-import { useSelector } from 'react-redux';
+import useAuthStore from 'hooks/useAuthStore';
+
+
 
 const Main = () => {
-    const authStore = useSelector(store => store.auth);
+    const {authStore} = useAuthStore();
     const navigate = useNavigate();
 
     useEffect(()=>{
-        if(authStore.isLogin === true){
-            
-        }
-        else{
-            navigate("/signin");
+        if(authStore.isLogin === false){
+            navigate("/");
         }
     }, []);
-    const c = () => {
-        console.log(authStore);
-    }
+
+
     return (
         <Container>
-            <button onClick={c}>확인</button>
             <div className='top-content'>
                 <div className='right'>
                     <p>     

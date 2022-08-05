@@ -1,29 +1,14 @@
 import styled from "styled-components";
 import cssTheme from "./cssTheme";
 
-
-const COLOR = {
-    DarkBlue : `#001E6C`,
-};
-
-const FONT_SIZE = {
-    h1 : `32px`,
-    h2 : `24px`,
-    h3 : `18px`,
-    h4 : `11px`,
-};
-
 const HeaderContainer = styled.div`
     width : 100%;
-    height : 15vh;
+    height : 10vh;
     display : flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 
-    a{
-        
-    }
     .logo{
         margin-left : 50px;
         width : 15%;
@@ -31,15 +16,16 @@ const HeaderContainer = styled.div`
         flex-direction : row;
         justify-content: space-around;
         align-items: center;
+        text-decoration : none;
         
         .img{
-            width : 70px;
+            width : 40px;
         }
 
         .title{
-            font-size : 20px;
+            font-size : ${cssTheme.h3};
             font-weight : bold;
-            color : ${COLOR.DarkBlue};
+            color : ${cssTheme.DarkBlue};
         }
     }
 
@@ -51,19 +37,23 @@ const HeaderContainer = styled.div`
         flex-direction : row;
         align-items : center;
         justify-content: space-between;
+
+        .nav-img{
+            width : 20px;
+        }
     }
 
     @media ${cssTheme.mobile} {
-        background-color : orange;
+        // background-color : orange;
+
+        .logo > .title {
+            display : none;
+        }
+
     }
-    @media ${cssTheme.tabletMin} and ${cssTheme.tabletMax}{
-        background-color : gray;
-    }
-    
-    @media ${cssTheme.desktop} {
-        background-color : pink;
+    @media ${cssTheme.tabletMin} {
+        // background-color : pink;
     }
 `;
-
 
 export default HeaderContainer;

@@ -14,17 +14,16 @@ import NotFound from 'pages/NotFound';
 import MyPage from 'pages/Auth/MyPage';
 import GroupListPage from 'pages/Group/GroupListPage';
 import GroupInfoPage from 'pages/Group/GroupInfoPage';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { refreshToken } from 'store/auth';
 import { getCookie, removeCookie, setCookie } from 'utils/Cookie';
 
-import { AppContainer } from 'styles/GlobalStyle';
+import { AppContainer } from 'styles/PageStyle';
 
 
 function App() {
 
   const dispatch = useDispatch();
-  const authStore = useSelector(store => store.auth);
   // console.log(store);
 
   useEffect(() => {

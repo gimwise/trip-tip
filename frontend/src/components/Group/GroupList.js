@@ -20,7 +20,7 @@ const GroupList = () => {
     
 
     return (
-        <div>
+        <div className='group-list'>
             {list.map((v, i)=> <Group key={v.group_id} name={v.group_name} code={v.code} leader={v.leader_nick} member={v.member} id={v.group_id} />)}
         </div>
     );

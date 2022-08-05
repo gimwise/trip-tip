@@ -46,12 +46,20 @@ const Header = () => {
                         {/* 나중에 알람 유무도 나눠야함 */}
                             <li>
                                 <NavLink to="/alert">
-                                    <img src={noAlertImg} alt='alert'/>
+                                    <img 
+                                        className='nav-img'
+                                        src={noAlertImg} 
+                                        alt='alert'
+                                    />
                                 </NavLink>
                             </li>
                             <li>
                                 <NavLink to="/mypage">
-                                    <img src={user} alt='user page'/>
+                                    <img 
+                                        className='nav-img'
+                                        src={user} 
+                                        alt='user page'
+                                    />
                                 </NavLink>
                             </li>
                         </>
