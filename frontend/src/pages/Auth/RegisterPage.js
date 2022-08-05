@@ -1,9 +1,14 @@
 import React from 'react';
 import SignupForm from 'components/Auth/SignupForm';
+import { SignUpContainer } from 'styles/PageStyle';
+import signupImg from 'assets/image/signup-page-img.png';
 
 const RegisterPage = () => {
     return (
-        <SignupForm />
+        <SignUpContainer>
+            <SignupForm />
+            <img src={signupImg} alt=''/>
+        </SignUpContainer>
     );
 };
 

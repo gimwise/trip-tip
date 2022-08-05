@@ -2,18 +2,20 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import startImg from 'assets/image/main-page-image.png';
+import { StartContainer } from 'styles/PageStyle';
 
 const StartPage = ({isLogin}) => {
 
     if(isLogin === true){
-        window.location.replace("http://localhost:3000/main");
+        window.location.replace("/main");
     }
 
     return (
-        <Container>
+        <StartContainer>
             <div className='left'>
-                <img src={startImg} />
+                <img src={startImg} alt='비둘기'/>
             </div>
+
             <div className='right'>
                 <h1>
                     이번 모임 총무하실분...?
@@ -23,54 +25,23 @@ const StartPage = ({isLogin}) => {
                 </h1>
                 <p>TRIP TIP으로 쉽게 정산하세요.</p>
                 <div className='btns'>
-                    <NavBlue to="/signup">회원가입</NavBlue>
-                    <NavWhite to="/signin">로그인</NavWhite>
+                    <NavLink 
+                        className='signup'
+                        to="/signup"
+                    >
+                        회원가입
+                    </NavLink>
+                    <NavLink 
+                        className='signin'
+                        to="/signin"
+                    >
+                        로그인
+                    </NavLink>
                 </div>
             </div>
-        </Container>
+        </StartContainer>
     );
 };
 
 export default StartPage;
 
-const Container = styled.div`
-    height : 80vh;
-    display : flex;
-    justify-content: center;
-    align-items: center;
-
-    img{
-        width : 620px;
-    }
-    .right{
-        margin-left : 50px;
-    }
-    p{
-        color : #747474;
-    }
-    .btns{
-        display : flex;
-        flex-direction : column;
-    }
-`;
-
-const NavBlue = styled(NavLink)`
-    width : 300px;
-    background-color : #0065FF;
-    color : white;
-    text-decoration : none;
-    padding : 20px;
-    text-align : center;
-    border-radius : 5px;
-    margin-bottom : 20px;
-`;
-
-const NavWhite = styled(NavLink)`
-    width : 300px;
-    text-decoration : none;
-    color : black;
-    padding : 20px;
-    text-align : center;
-    border-radius : 5px;
-    box-shadow: 0px 0px 10px 2px #E8E8E8;
-`;
